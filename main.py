@@ -90,7 +90,6 @@ redraw_hints()
 
 while True:             # Event Loop
     event, values = window.read()
-    # print(event, values)
     if event in (None, 'Exit'):
         break
     if event in ('Check'):

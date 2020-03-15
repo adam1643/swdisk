@@ -6,19 +6,25 @@ class Nonogram:
     def __init__(self):
         self.width = 0
         self.height = 0
-        self.board = []
         self.rows = []
         self.cols = []
-        self.height = []
+        self.board = []
 
-    def load_from_file(self, file):
-        f = open(file, 'r')
+    def load_from_file(self, filename):
+        f = open(filename, 'r')
+
+        # read dimensions of the puzzle
         buffer = f.readline()
         self.width, self.height = [int(s) for s in buffer.split(' ')]
+
+        # read hints for rows
         buffer = f.readline()
         self.rows = np.array(ast.literal_eval(buffer))
+
+        #read hints for columns
         buffer = f.readline()
         self.cols = np.array(ast.literal_eval(buffer))
+
         f.close()
         self.board = np.zeros((self.width, self.height), dtype=int)
 
@@ -33,6 +39,7 @@ class Nonogram:
         pass
 
     @staticmethod
+    # converts line of drawing to list containing lengths of continuous colored fields
     def prepare_line(line):
         data = []
         index = 0
