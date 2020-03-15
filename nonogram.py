@@ -16,10 +16,11 @@ class Nonogram:
         buffer = f.readline()
         self.width, self.height = [int(s) for s in buffer.split(' ')]
         buffer = f.readline()
-        self.rows = ast.literal_eval(buffer)
+        self.rows = np.array(ast.literal_eval(buffer))
         buffer = f.readline()
-        self.cols = ast.literal_eval(buffer)
+        self.cols = np.array(ast.literal_eval(buffer))
         f.close()
+        self.board = np.zeros((self.width, self.height), dtype=int)
 
     def init_game(self, width, height, rows, cols):
         self.width = width
