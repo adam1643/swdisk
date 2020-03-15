@@ -2,79 +2,17 @@ import os
 import PySimpleGUI as sg
 import random
 import string
+import numpy as np
+import ast  # for evaluating data loaded from file
 
-class Nonogram:
-    def __init__(self):
-        self.width = 0
-        self.height = 0
-        self.board = []
-        self.rows = []
-        self.cols = []
-        self.height = []
+from nonogram import Nonogram
 
-    def init_game(self, width, height, rows, cols):
-        self.width = width
-        self.height = height
-        self.rows = rows
-        self.cols = cols
-        self.board = [[0 for _ in range(self.width)] for _ in range(self.height)]
-
-    def solve(self):
-        pass
-
-    def draw(self):
-        max_col = 0
-        for c in self.cols:
-            if len(c) > max_col:
-                max_col = len(c)
-
-        max_row = 0
-        for r in self.rows:
-            if len(r) > max_row:
-                max_row = len(r)
-
-        os.system("clear")
-
-        for c in self.cols:
-            while len(c) < max_col:
-                c.insert(0, 0)
-
-        for r in self.rows:
-            while len(r) < max_row:
-                r.insert(0, 0)
-
-        padding = " "*(max_row+1)
-        for i in range(max_col):
-            print(padding, end='')
-            for c in self.cols:
-                if c[i] == 0:
-                    print(' ', end='')
-                else:
-                    print(c[i], end='')
-            print('|')
-
-        print(padding, end='')
-        print('-'*self.width)
-
-        for i in range(self.height):
-            for a in self.rows[i]:
-                if a == 0:
-                    print(' ', end='')
-                else:
-                    print(a, end='')
-            print('|')
-
-
-
-        print(padding, end='')
-        print('-'*self.width)
 
 game = Nonogram()
-r = [[1], [1,1,1], [1], [1], [2,3]]
-c = [[1], [2], [], [1,1,1], [4]]
+r = [[1], [1,1,1], [1], [1], [2,1]]
+c = [[1, 1], [2], [1], [1,1,1], [1]]
 game.init_game(5, 5, r, c)
 
-game.draw()
 
 # sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
@@ -122,12 +60,12 @@ def redraw():
 
     for row in range(game.width):
         for col in range(game.height):
-            if board[col][row] is not None:
+            if board[row][col] is not None:
                 continue
-            if game.board[col][row] == 0:
-                board[col][row] = g.draw_rectangle((col * BOX_SIZE + 5, row * BOX_SIZE + 3), (col * BOX_SIZE + BOX_SIZE + 5, row * BOX_SIZE + BOX_SIZE + 3), line_color='black')
+            if game.board[row][col] == 0:
+                board[row][col] = g.draw_rectangle((col * BOX_SIZE + 5, row * BOX_SIZE + 3), (col * BOX_SIZE + BOX_SIZE + 5, row * BOX_SIZE + BOX_SIZE + 3), line_color='black')
             else:
-                board[col][row] = g.draw_rectangle((col * BOX_SIZE + 5, row * BOX_SIZE + 3), (col * BOX_SIZE + BOX_SIZE + 5, row * BOX_SIZE + BOX_SIZE + 3), line_color='black', fill_color='black')
+                board[row][col] = g.draw_rectangle((col * BOX_SIZE + 5, row * BOX_SIZE + 3), (col * BOX_SIZE + BOX_SIZE + 5, row * BOX_SIZE + BOX_SIZE + 3), line_color='black', fill_color='black')
 
             # draw tile number in the tile
             # g.draw_text('{}'.format(row * game.height + col + 1),
@@ -139,9 +77,12 @@ redraw_hints()
 
 while True:             # Event Loop
     event, values = window.read()
-    print(event, values)
+    # print(event, values)
     if event in (None, 'Exit'):
         break
+    if event in ('Show'):
+        game.check_solution()
+
     mouse = values['-GRAPH-']
 
     if event == '-GRAPH-':
@@ -150,17 +91,17 @@ while True:             # Event Loop
         box_x = mouse[0]//BOX_SIZE
         box_y = mouse[1]//BOX_SIZE
         letter_location = (box_x * BOX_SIZE + 18, box_y * BOX_SIZE + 17)
-        print(box_x, box_y)
-        if game.board[box_x][box_y] == 0:
-            game.board[box_x][box_y] = 1
-            g.delete_figure(board[box_x][box_y])
-            board[box_x][box_y] = None
-            print(board[box_x][box_y])
+        # print(box_x, box_y)
+        if game.board[box_y][box_x] == 0:
+            game.board[box_y][box_x] = 1
+            g.delete_figure(board[box_y][box_x])
+            board[box_y][box_x] = None
+            print(board[box_y][box_x])
         else:
-            game.board[box_x][box_y] = 0
-            print(board[box_x][box_y])
-            g.delete_figure(board[box_x][box_y])
-            board[box_x][box_y] = None
+            game.board[box_y][box_x] = 0
+            print(board[box_y][box_x])
+            g.delete_figure(board[box_y][box_x])
+            board[box_y][box_x] = None
 
         redraw()
 
