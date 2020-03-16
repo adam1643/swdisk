@@ -24,10 +24,15 @@ class GUI:
         self.col_hints = None
 
     def reload(self, game_width, game_height):
+        self.clear_hints()
+        self.clear_board()
+
         self.game_width = game_width
         self.game_height = game_height
         self.BOX_WIDTH = self.WINDOW_SIZE_X // self.game_width
         self.BOX_HEIGHT = self.WINDOW_SIZE_Y // self.game_height
+
+        self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
 
     def set_layout(self):
         self.layout = [
@@ -65,7 +70,6 @@ class GUI:
         for row in range(self.game_width):
             for col in range(self.game_height):
                 self.puzzle.delete_figure(self.board_ids[row][col])
-        self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
 
     def redraw_hints(self, rows, cols):
         # first remove all existing hints
@@ -88,3 +92,23 @@ class GUI:
                                                10 + self.TIP_SIZE * (index / len(col))),
                                               text_location=sg.TEXT_LOCATION_CENTER)
                 self.col_hint_ids.append(ch)
+
+    def redraw(self):
+        for row in range(self.game_width):
+            for col in range(self.game_height):
+                if self.board_ids[row][col] is not None:
+                    continue
+                if self.board_ids[row][col] == 0:
+                    self.board_ids[row][col] = self.puzzle.draw_rectangle(
+                        (col * self.BOX_WIDTH + 5, row * self.BOX_HEIGHT + 3),
+                        (col * self.BOX_WIDTH + self.BOX_WIDTH + 5, row * self.BOX_HEIGHT + self.BOX_HEIGHT + 3),
+                        line_color='black')
+                else:
+                    self.board_ids[row][col] = self.puzzle.draw_rectangle(
+                        (col * self.BOX_WIDTH + 5, row * self.BOX_HEIGHT + 3),
+                        (col * self.BOX_WIDTH + self.BOX_WIDTH + 5, row * self.BOX_HEIGHT + self.BOX_HEIGHT + 3),
+                        line_color='black', fill_color='black')
+
+                # draw tile number in the tile
+                # g.draw_text('{}'.format(row * game.height + col + 1),
+                #             (col * BOX_SIZE + 10, row * BOX_SIZE + 8))

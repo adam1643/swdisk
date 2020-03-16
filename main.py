@@ -47,7 +47,7 @@ def redraw_hints():
     for col_index, col in enumerate(game.cols):
         for index, num in enumerate(col):
             ch = COLUMNS.draw_text('{}'.format(num if num > 0 else ""),
-                              (TIP_SIZE + BOX_WIDTH//2 + col_index*BOX_WIDTH, 10 + TIP_SIZE*(index/len(col))),
+                              (TIP_SIZE + BOX_WIDTH//2 + col_index*BOX_WIDTH, BOX_HEIGHT//2 + TIP_SIZE*(index/len(col))),
                               text_location=sg.TEXT_LOCATION_CENTER)
             col_hints.append(ch)
 
@@ -83,7 +83,6 @@ def clear_board():
     for row in range(game.width):
         for col in range(game.height):
             g.delete_figure(board[row][col])
-    board = [[None for _ in range(game.width)] for _ in range(game.height)]
 
 redraw()
 redraw_hints()
@@ -96,9 +95,13 @@ while True:             # Event Loop
         game.check_solution()
     if event in ('_FILEBROWSE_'):
         filename = values['_FILEBROWSE_']
-        game.load_from_file(filename)
         clear_hints()
         clear_board()
+        game.load_from_file(filename)
+        board = [[None for _ in range(game.width)] for _ in range(game.height)]
+        BOX_SIZE = WINDOW_SIZE_X // game.width
+        BOX_WIDTH = WINDOW_SIZE_X // game.width
+        BOX_HEIGHT = WINDOW_SIZE_Y // game.height
         redraw_hints()
         redraw()
 

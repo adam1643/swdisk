@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import ast
 import numpy as np
-tree = ET.parse('/Users/adamstanislawski/nonograms/3.xml')
+tree = ET.parse('/Users/adamstanislawski/nonograms/4533.xml')
 root = tree.getroot()
 
 # for type_tag in root.findall('puzzleset/puzzle/clues'):
