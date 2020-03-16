@@ -2,7 +2,7 @@ import PySimpleGUI as sg
 
 
 class GUI:
-    def __init__(self, game_width, game_height):
+    def __init__(self, game_width=5, game_height=5, game=None):
         self.game_width = game_width
         self.game_height = game_height
         self.WINDOW_SIZE_X = 300
@@ -15,6 +15,7 @@ class GUI:
         self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
         self.row_hint_ids = []
         self.col_hint_ids = []
+        self.game = game
 
         # init display variables
         self.layout = None
@@ -71,6 +72,11 @@ class GUI:
             for col in range(self.game_height):
                 self.puzzle.delete_figure(self.board_ids[row][col])
 
+    def change_box(self, x, y):
+        self.puzzle.delete_figure(self.board_ids[x][y])
+        self.board_ids[x][y] = None
+        self.redraw()
+
     def redraw_hints(self, rows, cols):
         # first remove all existing hints
         self.clear_hints()
@@ -98,7 +104,7 @@ class GUI:
             for col in range(self.game_height):
                 if self.board_ids[row][col] is not None:
                     continue
-                if self.board_ids[row][col] == 0:
+                if self.game.board[row][col] == 0:
                     self.board_ids[row][col] = self.puzzle.draw_rectangle(
                         (col * self.BOX_WIDTH + 5, row * self.BOX_HEIGHT + 3),
                         (col * self.BOX_WIDTH + self.BOX_WIDTH + 5, row * self.BOX_HEIGHT + self.BOX_HEIGHT + 3),
