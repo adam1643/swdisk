@@ -21,7 +21,7 @@ class Nonogram:
         buffer = f.readline()
         self.rows = np.array(ast.literal_eval(buffer))
 
-        #read hints for columns
+        # read hints for columns
         buffer = f.readline()
         self.cols = np.array(ast.literal_eval(buffer))
 
