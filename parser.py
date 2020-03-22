@@ -1,47 +1,34 @@
 import xml.etree.ElementTree as ET
-import ast
-import numpy as np
-tree = ET.parse('/Users/adamstanislawski/nonograms/4533.xml')
-root = tree.getroot()
 
-# for type_tag in root.findall('puzzleset/puzzle/clues'):
-#     value = type_tag.get('line')
-#     print(value)
 
-cols = root[1][9]
-rows = root[1][10]
+def parse_from_string(data, save_file):
+    root = ET.fromstring(data)
 
-row_hints = []
-col_hints = []
+    # column and row hints are saved as 9th and 10th element of puzzle XML
+    cols = root[1][9]
+    rows = root[1][10]
 
-for row in rows:
-    # value = type_tag.get('line')
-    row_hints.append([])
-    for num in row:
-        row_hints[-1].append(int(num.text))
+    row_hints = []
+    col_hints = []
 
-for col in cols:
-    # value = type_tag.get('line')
-    col_hints.append([])
-    for num in col:
-        col_hints[-1].append(int(num.text))
+    # save row hints to dedicated array
+    for row in rows:
+        row_hints.append([])
+        for num in row:
+            row_hints[-1].append(int(num.text))
 
-f = open('test1.txt', 'w')
-f.write('{} '.format(len(row_hints)))
-f.write('{}\n'.format(len(col_hints)))
-f.write('{}\n'.format(row_hints))
-f.write('{}\n'.format(col_hints))
-f.close()
+    # save column hints to dedicated array
+    for col in cols:
+        col_hints.append([])
+        for num in col:
+            col_hints[-1].append(int(num.text))
 
-# def load_from_file(file):
-#     f = open(file, 'r')
-#     buffer = f.readline()
-#     a, b = [int(s) for s in buffer.split(' ')]
-#     buffer = f.readline()
-#     r = ast.literal_eval(buffer)
-#     buffer = f.readline()
-#     c = ast.literal_eval(buffer)
-#     print(a, b)
-#     f.close()
-#
-# load_from_file('test.txt')
+    # format data and save them to given file
+    f = open(save_file, 'w')
+    f.write('{} '.format(len(row_hints)))
+    f.write('{}\n'.format(len(col_hints)))
+    f.write('{}\n'.format(row_hints))
+    f.write('{}\n'.format(col_hints))
+    f.close()
+
+
