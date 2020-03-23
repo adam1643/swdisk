@@ -37,7 +37,7 @@ def get_puzzle(puzzle_number, save_index, file_prefix='puzzle', file_extension='
 
     # if file_extension is not empty, add '.' before it
     if file_extension is not '':
-        file_prefix = '.'+file_prefix
+        file_extension = '.'+file_extension
     # parse received puzzle and save it to file
     parse_from_string(response.text, f'{file_prefix}{save_index}{file_extension}')
 
