@@ -24,8 +24,8 @@ class DatabaseHandler:
 
     def insert_data(self, rows, cols, row_hints, col_hints, is_unique, difficulty, colors):
         self.cursor.execute('''INSERT INTO puzzle (rows, cols, row_hints, col_hints, is_unique, difficulty, colors) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                            (rows, cols, f'{row_hints}', f'{col_hints}', is_unique, difficulty, colors))
+                    VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                        (rows, cols, str(row_hints), str(col_hints), is_unique, difficulty, colors))
         self.conn.commit()
 
     def select_data_by_id(self, id):
@@ -48,13 +48,4 @@ class DatabaseHandler:
 
         return id, rows, cols, row_hints, col_hints, is_unique, difficulty, colors
 
-
-dh = DatabaseHandler()
-# create_table(c)
-# conn.commit()
-# dh.insert_data(6, 6, [[1,2],[3,4],[5,6]], [[7,8],[9,10],[11,12]], 0, 3, 2)
-# conn.commit()
-b = dh.select_data_by_id(6)
-print(dh.parse_data_from_database(b[0]))
-dh.close_connection()
 

@@ -97,11 +97,11 @@ class PuzzleDownloader:
 
 
 # get all puzzles as XMLs
-def download_puzzles_as_xml(directory_path, start_index, end_index):
+def download_puzzles_as_xml(directory_path, file_prefix, start_index, end_index):
     pool = ThreadPool(16)
     pd = PuzzleDownloader()
     pd.DIRECTORY = directory_path
-    pd.FILE_PREFIX = 'puzzle'
+    pd.FILE_PREFIX = file_prefix
     my_array = [i for i in range(start_index, end_index+1)]
     for _ in tqdm.tqdm(pool.imap_unordered(pd.save_puzzle_as_xml, my_array), total=len(my_array)):
         pass
@@ -114,17 +114,6 @@ def check_all_xml_puzzles(directory_path, start_index, end_index):
     for _ in tqdm.tqdm(pool.imap_unordered(remove_not_existing_puzzle, my_array), total=len(my_array)):
         pass
 
-
-def insert_xml_into_database(db_handler, puzzle_xml):
-    pass
-
-
-def init_and_populate_database(db_handler, start_index, end_index):
-    pass
-
-
-check_all_xml_puzzles('puzzles/puzzle', 1, 33763)
-# download_puzzles_as_xml('puzzles', 33763, 33763)
 
 
 
