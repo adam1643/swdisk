@@ -20,7 +20,7 @@ def init_and_populate_database(db_handler, directory_path, start_index, end_inde
 # download_puzzles_as_xml('puzzles', 'puzzle', 1, 33763)
 
 
-# method to validate all puzzles and removing puzzles that do not exist
+# method to validate all puzzles and remove puzzles that do not exist
 # check_all_xml_puzzles('puzzles/puzzle', 1, 33763)
 
 

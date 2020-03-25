@@ -1,5 +1,6 @@
 import numpy as np
 import ast  # for evaluating data loaded from file
+from database import DatabaseHandler
 
 
 class Nonogram:
@@ -9,6 +10,8 @@ class Nonogram:
         self.rows = []
         self.cols = []
         self.board = []
+
+        self.db_handler = DatabaseHandler()
 
     def load_from_file(self, filename):
         f = open(filename, 'r')
@@ -26,6 +29,17 @@ class Nonogram:
         self.cols = np.array(ast.literal_eval(buffer))
 
         f.close()
+        self.board = np.zeros((self.width, self.height), dtype=int)
+
+    def load_from_db(self, puzzle_id):
+        sql_select = self.db_handler.select_data_by_id(puzzle_id)
+        game_data = sql_select[0]
+        print(game_data)
+        self.width = game_data[1]
+        self.height = game_data[2]
+        self.rows = np.array(ast.literal_eval(game_data[3]))
+        self.cols = np.array(ast.literal_eval(game_data[4]))
+
         self.board = np.zeros((self.width, self.height), dtype=int)
 
     def init_game(self, width, height, rows, cols):

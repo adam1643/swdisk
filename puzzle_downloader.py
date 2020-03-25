@@ -51,7 +51,7 @@ class PuzzleDownloader:
         # parse received puzzle and save it to file
         parse_from_string_to_file(response.text, f'{self.DIRECTORY}{self.FILE_PREFIX}{save_index}{file_extension}')
 
-    def save_puzzle_as_xml(self, puzzle_number, file_extension='xml'):
+    def get_and_save_puzzle_as_xml(self, puzzle_number, file_extension='xml'):
         # set some basic headers
         headers = {
             'Connection': 'keep-alive',
@@ -103,7 +103,7 @@ def download_puzzles_as_xml(directory_path, file_prefix, start_index, end_index)
     pd.DIRECTORY = directory_path
     pd.FILE_PREFIX = file_prefix
     my_array = [i for i in range(start_index, end_index+1)]
-    for _ in tqdm.tqdm(pool.imap_unordered(pd.save_puzzle_as_xml, my_array), total=len(my_array)):
+    for _ in tqdm.tqdm(pool.imap_unordered(pd.get_and_save_puzzle_as_xml, my_array), total=len(my_array)):
         pass
 
 

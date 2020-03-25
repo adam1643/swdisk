@@ -44,6 +44,7 @@ def parse_puzzle_from_xml_file(filepath):
     tree = ET.parse(filepath)
     root = tree.getroot()
 
+    # get number of colors
     colors = len(list(root[1].getiterator('color')))
     if colors > 2:
         # TODO: handle more than 2 color puzzles
