@@ -9,9 +9,8 @@ class PuzzleDownloader:
         self.DIRECTORY = ''
         self.FILE_PREFIX = 'puzzle'
 
-    def save_puzzle_parsed(self, puzzle_number, save_index, file_extension='txt'):
         # set some basic headers
-        headers = {
+        self.headers = {
             'Connection': 'keep-alive',
             'Cache-Control': 'max-age=0',
             'Origin': 'https://webpbn.com',
@@ -27,6 +26,7 @@ class PuzzleDownloader:
             'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7,de;q=0.6',
         }
 
+    def save_puzzle_parsed(self, puzzle_number, save_index, file_extension='txt'):
         # set id of downloaded puzzle and format of the exported data
         data = {
           'go': '1',
@@ -40,7 +40,7 @@ class PuzzleDownloader:
           'sg_soln': 'on'
         }
 
-        response = requests.post('https://webpbn.com/export.cgi/export.cgi/webpbn004533.xml', headers=headers, data=data)
+        response = requests.post('https://webpbn.com/export.cgi/export.cgi/webpbn004533.xml', headers=self.headers, data=data)
 
         # if file_extension is not empty, add '.' before it
         if file_extension is not '':
@@ -52,23 +52,6 @@ class PuzzleDownloader:
         parse_from_string_to_file(response.text, f'{self.DIRECTORY}{self.FILE_PREFIX}{save_index}{file_extension}')
 
     def get_and_save_puzzle_as_xml(self, puzzle_number, file_extension='xml'):
-        # set some basic headers
-        headers = {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'Origin': 'https://webpbn.com',
-            'Upgrade-Insecure-Requests': '1',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
-            'Sec-Fetch-Dest': 'document',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-User': '?1',
-            'Referer': 'https://webpbn.com/export.cgi/webpbn004532.xml',
-            'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7,de;q=0.6',
-        }
-
         # set id of downloaded puzzle and format of the exported data
         data = {
           'go': '1',
@@ -82,7 +65,7 @@ class PuzzleDownloader:
           'sg_soln': 'on'
         }
 
-        response = requests.post('https://webpbn.com/export.cgi/export.cgi/webpbn004533.xml', headers=headers, data=data)
+        response = requests.post('https://webpbn.com/export.cgi/export.cgi/webpbn004533.xml', headers=self.headers, data=data)
 
         # if file_extension is not empty, add '.' before it
         if file_extension is not '':

@@ -5,7 +5,7 @@ from parser import parse_puzzle_from_xml_file
 import tqdm
 
 
-# create database that contain all retrieved puzzles
+# create database that contains all retrieved puzzles
 def init_and_populate_database(db_handler, directory_path, start_index, end_index):
     db_handler.create_table()
     for i in tqdm.tqdm(range(start_index, end_index + 1)):

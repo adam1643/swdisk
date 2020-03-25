@@ -5,13 +5,13 @@ from database import DatabaseHandler
 
 class Nonogram:
     def __init__(self):
-        self.width = 0
-        self.height = 0
-        self.rows = []
-        self.cols = []
-        self.board = []
+        self.width = 0      # number of columns
+        self.height = 0     # number of rows
+        self.rows = []      # 2d array storing hints for rows
+        self.cols = []      # 2d array storing hints for columns
+        self.board = []     # 2D numpy array storing board tiles state
 
-        self.db_handler = DatabaseHandler()
+        self.db_handler = DatabaseHandler()     # pointer to database handler used for loading puzzles from database
 
     def load_from_file(self, filename):
         f = open(filename, 'r')
@@ -34,7 +34,6 @@ class Nonogram:
     def load_from_db(self, puzzle_id):
         sql_select = self.db_handler.select_data_by_id(puzzle_id)
         game_data = sql_select[0]
-        print(game_data)
         self.width = game_data[1]
         self.height = game_data[2]
         self.rows = np.array(ast.literal_eval(game_data[3]))
@@ -53,7 +52,7 @@ class Nonogram:
         pass
 
     @staticmethod
-    # converts line of drawing to list containing lengths of continuous colored fields
+    # converts line of tiles to list containing lengths of continuous colored fields
     def prepare_line(line):
         data = []
         index = 0

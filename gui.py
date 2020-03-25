@@ -4,31 +4,31 @@ import PySimpleGUI as sg
 class GUI:
     def __init__(self, game_width=5, game_height=5, game=None):
         # puzzle related variables
-        self.game_width = game_width
-        self.game_height = game_height
-        self.game = game
+        self.game_width = game_width    # width of the game, used in GUI (could be different from width of current puzzle itself)
+        self.game_height = game_height  # height of the game, used in GUI (could be different from ehight of current puzzle itself)
+        self.game = game                # pointer to game object
 
         # window sizes related variables
-        self.WINDOW_SIZE_X = 500
-        self.WINDOW_SIZE_Y = 500
-        self.BOX_WIDTH = self.WINDOW_SIZE_X // self.game_width
-        self.BOX_HEIGHT = self.WINDOW_SIZE_Y // self.game_height
-        self.stored_size = (0, 0)
-        self.reload_size = True
+        self.WINDOW_SIZE_X = 500    # initial width of the window
+        self.WINDOW_SIZE_Y = 500    # initial height of the window
+        self.BOX_WIDTH = self.WINDOW_SIZE_X // self.game_width      # width of the single puzzle tile
+        self.BOX_HEIGHT = self.WINDOW_SIZE_Y // self.game_height    # height of the single puzzle tile
+        self.stored_size = (0, 0)   # width and height of the last drawn window
+        self.reload_size = True     # boolean for checking if the window needs to be redrawn due to window resizing
 
-        self.TIP_SIZE = 150
+        self.TIP_SIZE = 150         # widht (for rows) or height (for columns) of box containing hints
 
         # variables storing object ids of hints/board
-        self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
-        self.row_hint_ids = []
-        self.col_hint_ids = []
+        self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]  # array storing IDs of puzzle tiles
+        self.row_hint_ids = []      # array storing IDs of drawn objects of hints for rows
+        self.col_hint_ids = []      # array storing IDs of drawn objects of hints for columns
 
         # init display variables
-        self.layout = None
-        self.window = None
-        self.puzzle = None
-        self.row_hints = None
-        self.col_hints = None
+        self.layout = None      # layout of current window
+        self.window = None      # pointer to window object
+        self.puzzle = None      # pointer to window fragment containing puzzle tiles
+        self.row_hints = None   # pointer to window fragment containing hints for rows
+        self.col_hints = None   # pointer to window fragment containing hints for columns
 
     def reload(self):
         self.clear_hints()
@@ -38,24 +38,23 @@ class GUI:
         self.game_height = self.game.height
         # Update box sizes according to current size of the diagram
         self.BOX_WIDTH = self.WINDOW_SIZE_X // self.game_width
-        print("SIZES!", self.WINDOW_SIZE_Y, self.game_height)
         self.BOX_HEIGHT = self.WINDOW_SIZE_Y // self.game_height
 
-        # Init array storing ids of board boxes
+        # Init array storing ids of board tiles
         self.board_ids = [[None for _ in range(self.game_height)] for _ in range(self.game_width)]
 
     def change_size(self, x, y):
+        # calculate longest array of tips
         max_row = max([len(r) for r in self.game.rows])
         max_col = max([len(c) for c in self.game.cols])
         max_tip = max(max_row, max_col)
-        self.TIP_SIZE = max_tip*5 + 30
+        self.TIP_SIZE = max_tip * 5 + 30
 
         self.WINDOW_SIZE_X = x - self.TIP_SIZE - 80
         self.WINDOW_SIZE_Y = y - self.TIP_SIZE - 76 - 30
 
         self.reload()
         self.puzzle.set_size((self.WINDOW_SIZE_X, self.WINDOW_SIZE_Y))
-        # self.puzzle.change_coordinates((0, self.WINDOW_SIZE_Y + 10), (self.WINDOW_SIZE_X + 10, 0))
         self.BOX_WIDTH = self.WINDOW_SIZE_X // self.game_width
         self.BOX_HEIGHT = self.WINDOW_SIZE_Y // self.game_height
 
@@ -133,7 +132,6 @@ class GUI:
                 self.col_hint_ids.append(ch)
 
     def redraw(self):
-        print(self.BOX_HEIGHT)
         for row in range(self.game_width):
             for col in range(self.game_height):
                 if self.board_ids[row][col] is not None:
