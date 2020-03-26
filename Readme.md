@@ -25,3 +25,8 @@ TABLE 'puzzle':
 | id              | rows       | cols | row_hints | col_hints | is_unique | difficulty | colors
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 | INT (PRIMARY KEY) | INT        | INT  | TEXT | TEXT | INT | INT | INT
+
+### Sample row from DB
+| id              | rows       | cols | row_hints | col_hints | is_unique | difficulty | colors
+| ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+1|10|5|[[2], [2, 1], [1, 1], [3], [1, 1], [1, 1], [2], [1, 1], [1, 2], [2]]|[[2, 1], [2, 1, 3], [7], [1, 3], [2, 1]]|1|0|2
