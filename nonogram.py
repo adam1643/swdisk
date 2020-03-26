@@ -19,7 +19,7 @@ class Nonogram:
 
         # read dimensions of the puzzle
         buffer = f.readline()
-        self.width, self.height = [int(s) for s in buffer.split(' ')]
+        self.height, self.width = [int(s) for s in buffer.split(' ')]
 
         # read hints for rows
         buffer = f.readline()
@@ -30,24 +30,25 @@ class Nonogram:
         self.cols = np.array(ast.literal_eval(buffer))
 
         f.close()
-        self.board = np.zeros((self.width, self.height), dtype=int)
+        self.board = np.zeros((self.height, self.width), dtype=int)
 
     def load_from_db(self, puzzle_id):
         sql_select = self.db_handler.select_data_by_id(puzzle_id)
         game_data = sql_select[0]
-        self.width = game_data[1]
-        self.height = game_data[2]
+        print(game_data)
+        self.width = game_data[2]
+        self.height = game_data[1]
         self.rows = np.array(ast.literal_eval(game_data[3]))
         self.cols = np.array(ast.literal_eval(game_data[4]))
 
-        self.board = np.zeros((self.width, self.height), dtype=int)
+        self.board = np.zeros((self.height, self.width), dtype=int)
 
     def init_game(self, width, height, rows, cols):
         self.width = width
         self.height = height
         self.rows = np.array(rows)
         self.cols = np.array(cols)
-        self.board = np.zeros((self.width, self.height), dtype=int)
+        self.board = np.zeros((self.height, self.width), dtype=int)
 
     def solve(self):
         pass
@@ -93,4 +94,5 @@ class Nonogram:
 
         for _ in range(len(self.rows)):
             buffer = f.readline()
-            self.solution.append([int(s) for s in buffer.split(' ')])
+            if buffer is not '':
+                self.solution.append([int(s) for s in buffer.split(' ')])

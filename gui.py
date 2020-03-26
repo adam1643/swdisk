@@ -40,8 +40,10 @@ class GUI:
         self.BOX_WIDTH = self.WINDOW_SIZE_X // self.game_width
         self.BOX_HEIGHT = self.WINDOW_SIZE_Y // self.game_height
 
+        print("SIZES", self.BOX_WIDTH, self.BOX_HEIGHT)
+
         # Init array storing ids of board tiles
-        self.board_ids = [[None for _ in range(self.game_height)] for _ in range(self.game_width)]
+        self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
 
     def change_size(self, x, y):
         # calculate longest array of tips
@@ -50,8 +52,8 @@ class GUI:
         max_tip = max(max_row, max_col)
         self.TIP_SIZE = max_tip * 5 + 30
 
-        self.WINDOW_SIZE_X = x - self.TIP_SIZE - 80
-        self.WINDOW_SIZE_Y = y - self.TIP_SIZE - 76 - 30
+        self.WINDOW_SIZE_X = int(0.8*x) - self.TIP_SIZE #- 30
+        self.WINDOW_SIZE_Y = int(0.8*y) - self.TIP_SIZE #- 30# - 76
 
         self.reload()
         self.puzzle.set_size((self.WINDOW_SIZE_X, self.WINDOW_SIZE_Y))
@@ -100,8 +102,8 @@ class GUI:
         self.col_hint_ids = []
 
     def clear_board(self):
-        for row in range(self.game_width):
-            for col in range(self.game_height):
+        for row in range(self.game_height):
+            for col in range(self.game_width):
                 self.puzzle.delete_figure(self.board_ids[row][col])
 
     def update_box(self, x, y):
@@ -119,7 +121,7 @@ class GUI:
                 rh = self.row_hints.draw_text('{}'.format(num if num > 0 else ""),
                                               (10 + self.TIP_SIZE * (index / len(row)),
                                                self.BOX_HEIGHT / 2 + row_index * self.BOX_HEIGHT),
-                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 25')
+                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 20')
                 self.row_hint_ids.append(rh)
 
         # populate all column hints
@@ -128,12 +130,14 @@ class GUI:
                 ch = self.col_hints.draw_text('{}'.format(num if num > 0 else ""),
                                               (5 + self.TIP_SIZE + self.BOX_WIDTH // 2 + col_index * self.BOX_WIDTH,
                                                10 + self.TIP_SIZE * (index / len(col))),
-                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 25')
+                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 20')
                 self.col_hint_ids.append(ch)
 
     def redraw(self):
-        for row in range(self.game_width):
-            for col in range(self.game_height):
+        print(self.game_width, self.game_height)
+        print(self.game.rows, self.game.cols)
+        for row in range(self.game_height):
+            for col in range(self.game_width):
                 if self.board_ids[row][col] is not None:
                     continue
                 if self.game.board[row][col] == 0:
