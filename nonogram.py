@@ -12,6 +12,7 @@ class Nonogram:
         self.board = []     # 2D numpy array storing board tiles state
 
         self.db_handler = DatabaseHandler()     # pointer to database handler used for loading puzzles from database
+        self.solution = []  # 2d array storing solution of the puzzle (1st row, 2nd row, etc.)
 
     def load_from_file(self, filename):
         f = open(filename, 'r')
@@ -81,3 +82,15 @@ class Nonogram:
                 return False
         print("CORRECT")
         return True
+
+    def get_solution_from_file(self, filename):
+        self.solution = []
+        try:
+            f = open(filename, 'r')
+        except FileNotFoundError:
+            print("File does not exist!")
+            return
+
+        for _ in range(len(self.rows)):
+            buffer = f.readline()
+            self.solution.append([int(s) for s in buffer.split(' ')])

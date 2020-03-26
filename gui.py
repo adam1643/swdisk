@@ -68,7 +68,7 @@ class GUI:
 
     def set_layout(self):
         self.layout = [
-            [sg.Text('Nonogram Puzzle'), sg.Text('', key='-OUTPUT-')],
+            [sg.Text('Nonogram'), sg.Text('', key='-OUTPUT-')],
             [sg.Graph((self.TIP_SIZE + self.WINDOW_SIZE_X, self.TIP_SIZE),
                       (0, self.TIP_SIZE), (self.TIP_SIZE + self.WINDOW_SIZE_X, 0),
                       key='-COLUMNS-', change_submits=True, drag_submits=False)],
@@ -119,7 +119,7 @@ class GUI:
                 rh = self.row_hints.draw_text('{}'.format(num if num > 0 else ""),
                                               (10 + self.TIP_SIZE * (index / len(row)),
                                                self.BOX_HEIGHT / 2 + row_index * self.BOX_HEIGHT),
-                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 15')
+                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 25')
                 self.row_hint_ids.append(rh)
 
         # populate all column hints
@@ -128,7 +128,7 @@ class GUI:
                 ch = self.col_hints.draw_text('{}'.format(num if num > 0 else ""),
                                               (5 + self.TIP_SIZE + self.BOX_WIDTH // 2 + col_index * self.BOX_WIDTH,
                                                10 + self.TIP_SIZE * (index / len(col))),
-                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 15')
+                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 25')
                 self.col_hint_ids.append(ch)
 
     def redraw(self):
@@ -140,7 +140,7 @@ class GUI:
                     self.board_ids[row][col] = self.puzzle.draw_rectangle(
                         (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
                         (col * self.BOX_WIDTH + self.BOX_WIDTH, row * self.BOX_HEIGHT + self.BOX_HEIGHT),
-                        line_color='black')
+                        line_color='black', fill_color='white')
                 else:
                     self.board_ids[row][col] = self.puzzle.draw_rectangle(
                         (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
@@ -148,8 +148,10 @@ class GUI:
                         line_color='black', fill_color='black')
 
                 # draw tile number in the tile
-                # g.draw_text('{}'.format(row * game.height + col + 1),
-                #             (col * BOX_SIZE + 10, row * BOX_SIZE + 8))
+                # self.game.get_solution_from_file('solution.txt')
+                # self.puzzle.draw_text('{}'.format(self.game.solution[row][col]),
+                #             (col * self.BOX_WIDTH + self.BOX_WIDTH // 2, row * self.BOX_HEIGHT + self.BOX_HEIGHT // 2),
+                #             text_location=sg.TEXT_LOCATION_CENTER, font='Courier 50')
 
     def event_handler(self):
         event, values = self.window.read()
