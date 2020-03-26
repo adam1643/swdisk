@@ -173,7 +173,10 @@ class GUI:
             self.stored_size = (self.window.Size[0], self.window.Size[1])
 
         if event in 'Check':
-            self.game.check_solution()
+            if self.game.check_solution():
+                sg.popup_ok('CORRECT')
+            else:
+                sg.popup_ok('WRONG')
 
         if event in 'Load from database':
             popup_text = sg.popup_get_text('Choose puzzle ID (1-9000)', 'Load puzzle from database')
