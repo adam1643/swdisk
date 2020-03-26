@@ -1,10 +1,15 @@
 # Nonograms
 
 # Getting started
+**This project is for `python3` only and requires `tkinter` library installed!**
+
+
 After downloading or cloning repository, please install all packages from requirements.txt file with command:
 ```sh
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
+
+Alternatively, i.e. PyCharm will automatically suggest you to install modules from `requirements.txt` file when you open this repository as project.
 # Files
 - main.py - main app script - use to start GUI
 - maintenance.py - script for downloading puzzles/parsing puzzles/creating database - you do not need to use it if you use database file puzzles.db

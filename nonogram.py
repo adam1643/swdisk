@@ -35,7 +35,6 @@ class Nonogram:
     def load_from_db(self, puzzle_id):
         sql_select = self.db_handler.select_data_by_id(puzzle_id)
         game_data = sql_select[0]
-        print(game_data)
         self.width = game_data[2]
         self.height = game_data[1]
         self.rows = np.array(ast.literal_eval(game_data[3]))

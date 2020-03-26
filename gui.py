@@ -40,8 +40,6 @@ class GUI:
         self.BOX_WIDTH = self.WINDOW_SIZE_X // self.game_width
         self.BOX_HEIGHT = self.WINDOW_SIZE_Y // self.game_height
 
-        print("SIZES", self.BOX_WIDTH, self.BOX_HEIGHT)
-
         # Init array storing ids of board tiles
         self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
 
@@ -134,8 +132,6 @@ class GUI:
                 self.col_hint_ids.append(ch)
 
     def redraw(self):
-        print(self.game_width, self.game_height)
-        print(self.game.rows, self.game.cols)
         for row in range(self.game_height):
             for col in range(self.game_width):
                 if self.board_ids[row][col] is not None:
