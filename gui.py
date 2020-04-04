@@ -1,5 +1,7 @@
 import PySimpleGUI as sg
-
+import queue
+import threading
+from solver_dfs import SolverDFS
 
 class GUI:
     def __init__(self, game_width=5, game_height=5, game=None):
@@ -29,6 +31,8 @@ class GUI:
         self.puzzle = None      # pointer to window fragment containing puzzle tiles
         self.row_hints = None   # pointer to window fragment containing hints for rows
         self.col_hints = None   # pointer to window fragment containing hints for columns
+
+        self.queue = queue.Queue()
 
     def reload(self):
         self.clear_hints()
@@ -84,7 +88,7 @@ class GUI:
                       (-1, self.WINDOW_SIZE_Y + 1), (self.WINDOW_SIZE_X + 1, -1),
                       key='-GRAPH-', change_submits=True, drag_submits=False)],
             [sg.Button('Check'), sg.Button('Exit'), sg.FileBrowse('Load file', target='-FILEBROWSE-'),
-             sg.Button('Load from database')],
+             sg.Button('Load from database'), sg.Button('Solve with DFS')],
             [sg.Input(key='-FILEBROWSE-', enable_events=True, visible=False)]
         ]
 
@@ -108,6 +112,7 @@ class GUI:
         for row in range(self.game_height):
             for col in range(self.game_width):
                 self.puzzle.delete_figure(self.board_ids[row][col])
+        self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
 
     def update_box(self, x, y):
         self.puzzle.delete_figure(self.board_ids[x][y])
@@ -146,11 +151,16 @@ class GUI:
                         (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
                         (col * self.BOX_WIDTH + self.BOX_WIDTH, row * self.BOX_HEIGHT + self.BOX_HEIGHT),
                         line_color='black', fill_color='white')
-                else:
+                elif self.game.board[row][col] == 1:
                     self.board_ids[row][col] = self.puzzle.draw_rectangle(
                         (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
                         (col * self.BOX_WIDTH + self.BOX_WIDTH, row * self.BOX_HEIGHT + self.BOX_HEIGHT),
                         line_color='black', fill_color='black')
+                else:
+                    self.board_ids[row][col] = self.puzzle.draw_rectangle(
+                        (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
+                        (col * self.BOX_WIDTH + self.BOX_WIDTH, row * self.BOX_HEIGHT+ self.BOX_HEIGHT),
+                        line_color='black', fill_color='grey')
 
                 # draw tile number in the tile
                 # self.game.get_solution_from_file('solution.txt')
@@ -200,6 +210,11 @@ class GUI:
                 self.redraw_hints(self.game.rows, self.game.cols)
                 self.redraw()
 
+        # solve game with DFS algorithm
+        if event in 'Solve with DFS':
+            thread_id = threading.Thread(target=self.game.solve, daemon=True)
+            thread_id.start()
+
         if event in '-GRAPH-':
             mouse = values['-GRAPH-']
             if mouse == (None, None):
@@ -218,5 +233,6 @@ class GUI:
                 self.game.board[box_x][box_y] = 0
                 self.update_box(box_x, box_y)
 
+        self.clear_board()
         self.redraw()
         return True

@@ -1,6 +1,7 @@
 import numpy as np
 import ast  # for evaluating data loaded from file
 from database import DatabaseHandler
+from solver_dfs import SolverDFS
 
 
 class Nonogram:
@@ -13,6 +14,13 @@ class Nonogram:
 
         self.db_handler = DatabaseHandler('puzzles.db')  # pointer to database handler used for loading puzzles from database
         self.solution = []  # 2d array storing solution of the puzzle (1st row, 2nd row, etc.)
+
+    def init_game(self, width, height, rows, cols):
+        self.width = width
+        self.height = height
+        self.rows = np.array(rows)
+        self.cols = np.array(cols)
+        self.board = np.zeros((self.height, self.width), dtype=int)
 
     def load_from_file(self, filename):
         f = open(filename, 'r')
@@ -42,16 +50,6 @@ class Nonogram:
 
         self.board = np.zeros((self.height, self.width), dtype=int)
 
-    def init_game(self, width, height, rows, cols):
-        self.width = width
-        self.height = height
-        self.rows = np.array(rows)
-        self.cols = np.array(cols)
-        self.board = np.zeros((self.height, self.width), dtype=int)
-
-    def solve(self):
-        pass
-
     @staticmethod
     # converts line of tiles to list containing lengths of continuous colored fields
     def prepare_line(line):
@@ -66,6 +64,19 @@ class Nonogram:
                 data.append(tmp)
             index += 1
         return np.array(data, dtype=int)
+
+    def get_solution_from_file(self, filename):
+        self.solution = []
+        try:
+            f = open(filename, 'r')
+        except FileNotFoundError:
+            print("File does not exist!")
+            return
+
+        for _ in range(len(self.rows)):
+            buffer = f.readline()
+            if buffer is not '':
+                self.solution.append([int(s) for s in buffer.split(' ')])
 
     def check_solution(self):
         # check if every row is correct
@@ -83,15 +94,48 @@ class Nonogram:
         print("CORRECT")
         return True
 
-    def get_solution_from_file(self, filename):
-        self.solution = []
-        try:
-            f = open(filename, 'r')
-        except FileNotFoundError:
-            print("File does not exist!")
-            return
+    def get_board_row(self, index):
+        """Method for retriving given row"""
+        if index < 0 or index > self.height:
+            raise IndexError(f"Row index out of range! Allowed indexes are 0-{self.height-1}; given index: {index}")
+        return self.board[index].copy()
 
-        for _ in range(len(self.rows)):
-            buffer = f.readline()
-            if buffer is not '':
-                self.solution.append([int(s) for s in buffer.split(' ')])
+    def get_board_column(self, index):
+        """Method for retriving given column"""
+        if index < 0 or index > self.width:
+            raise IndexError(f"Column index out of range! Allowed indexes are 0-{self.width-1}; given index: {index}")
+        return self.board[:, index].copy()
+
+    def get_board_tile(self, x, y):
+        """Method for getting value of given tile"""
+        if x < 0 or x > self.width:
+            raise IndexError(f"X coordinate out of range! Allowed indexes are 0-{self.width}; given: {x}")
+        if y < 0 or y > self.height:
+            raise IndexError(f"Y coordinate out of range! Allowed indexes are 0-{self.height}; given: {y}")
+        return self.board[y][x]
+
+    def get_hints_row(self, index):
+        """Method for retriving all hints for given row"""
+        if index < 0 or index > self.height:
+            raise IndexError(f"Row index out of range! Allowed indexes are 0-{self.height-1}; given index: {index}")
+        return self.rows[index]
+
+    def get_hints_column(self, index):
+        """Method for retriving all hints for given column"""
+        if index < 0 or index > self.width:
+            raise IndexError(f"Column index out of range! Allowed indexes are 0-{self.width-1}; given index: {index}")
+        return self.cols[index]
+
+    def set_board_tile(self, x, y, value):
+        """Method for setting value of given tile"""
+        if x < 0 or x > self.width:
+            raise IndexError(f"X coordinate out of range! Allowed indexes are 0-{self.width}; given: {x}")
+        if y < 0 or y > self.height:
+            raise IndexError(f"Y coordinate out of range! Allowed indexes are 0-{self.height}; given: {y}")
+        if value not in (-1, 0, 1):
+            raise ValueError(f"Value incorrect. Allowed values: (-1, 0, 1); given value: {value}")
+        self.board[y][x] = value
+
+    def solve(self):
+        solver = SolverDFS(self)
+        solver.solve()
