@@ -48,7 +48,9 @@ You can retrieve puzzle data, such as hints and board rows/columns using these m
 - `get_hints_row(index)`
 - `get_hints_column(index)`
 
-Please use only method `set_board_tile(x, y, value)` for modifying puzzle data
+Please use only method `set_board_tile(x, y, value)` for modifying puzzle data!
+
+You can always use method `check_solution()` for checking if puzzle is solved correctly. It will return `True` is solution is correct and `False` otherwise.
 
 # DB structure of puzzles.db:
 TABLE 'puzzle':
