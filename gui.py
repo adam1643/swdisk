@@ -67,7 +67,12 @@ class GUI:
         return self.window.Size
 
     def set_layout(self):
+        menu_definition = [['File', ['Open', 'Save', 'Exit',]],
+                ['Edit', ['Paste', ['Special', 'Normal',], 'Undo'],],
+                ['Help', 'About...'], ]
+
         self.layout = [
+            [sg.Menu(menu_definition)],
             [sg.Text('Nonogram'), sg.Text('', key='-OUTPUT-')],
             [sg.Graph((self.TIP_SIZE + self.WINDOW_SIZE_X, self.TIP_SIZE),
                       (0, self.TIP_SIZE), (self.TIP_SIZE + self.WINDOW_SIZE_X, 0),
@@ -154,7 +159,7 @@ class GUI:
                 #             text_location=sg.TEXT_LOCATION_CENTER, font='Courier 50')
 
     def event_handler(self):
-        event, values = self.window.read()
+        event, values = self.window.read(timeout=100)
 
         # if bad event or 'Exit' event -> close app
         if event in (None, 'Exit'):
@@ -168,12 +173,14 @@ class GUI:
             self.reload_size = True
             self.stored_size = (self.window.Size[0], self.window.Size[1])
 
+        # check solution
         if event in 'Check':
             if self.game.check_solution():
                 sg.popup_ok('CORRECT')
             else:
                 sg.popup_ok('WRONG')
 
+        # load game from database
         if event in 'Load from database':
             popup_text = sg.popup_get_text('Choose puzzle ID (1-9000)', 'Load puzzle from database')
             if popup_text:
@@ -184,12 +191,14 @@ class GUI:
                     self.redraw_hints(self.game.rows, self.game.cols)
                     self.redraw()
 
+        # load game from file
         if event in '-FILEBROWSE-':
             filename = values['-FILEBROWSE-']
-            self.game.load_from_file(filename)
-            self.reload()
-            self.redraw_hints(self.game.rows, self.game.cols)
-            self.redraw()
+            if filename is not '':
+                self.game.load_from_file(filename)
+                self.reload()
+                self.redraw_hints(self.game.rows, self.game.cols)
+                self.redraw()
 
         if event in '-GRAPH-':
             mouse = values['-GRAPH-']
@@ -209,4 +218,5 @@ class GUI:
                 self.game.board[box_x][box_y] = 0
                 self.update_box(box_x, box_y)
 
+        self.redraw()
         return True

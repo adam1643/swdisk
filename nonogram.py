@@ -11,7 +11,7 @@ class Nonogram:
         self.cols = []      # 2d array storing hints for columns
         self.board = []     # 2D numpy array storing board tiles state
 
-        self.db_handler = DatabaseHandler()     # pointer to database handler used for loading puzzles from database
+        self.db_handler = DatabaseHandler('puzzles.db')  # pointer to database handler used for loading puzzles from database
         self.solution = []  # 2d array storing solution of the puzzle (1st row, 2nd row, etc.)
 
     def load_from_file(self, filename):

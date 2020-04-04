@@ -25,6 +25,6 @@ def init_and_populate_database(db_handler, directory_path, start_index, end_inde
 
 
 # uncomment below lines to parse downloaded data
-# dh = DatabaseHandler()
+# dh = DatabaseHandler('puzzles.db')
 # init_and_populate_database(dh, 'puzzles/puzzle', 1, 33763)
 # dh.close_connection()

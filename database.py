@@ -3,8 +3,8 @@ import ast
 
 
 class DatabaseHandler:
-    def __init__(self):
-        self.conn = sqlite3.connect('puzzles.db')
+    def __init__(self, filename):
+        self.conn = sqlite3.connect(filename)
         self.cursor = self.conn.cursor()
 
     def close_connection(self):
