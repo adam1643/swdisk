@@ -30,12 +30,15 @@ class DatabaseHandler:
 
     def select_data_by_id(self, game_id):
         game_id = str(game_id)
-        print(game_id)
         self.cursor.execute('''SELECT * FROM puzzle WHERE id=?''', (game_id,))
         return self.cursor.fetchall()
 
     def select_unique_data_by_size(self, row, col):
         self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=0 and rows=? and cols=?''', (row, col))
+        return self.cursor.fetchall()
+
+    def query_sql(self, sql):
+        self.cursor.execute(sql)
         return self.cursor.fetchall()
 
     def parse_data_from_database(self, data):
