@@ -25,12 +25,13 @@ Alternatively, i.e. PyCharm will automatically suggest you to install modules fr
 
 Nonogram board consists of 2D array which is indexed from left-top corner:
 
-| (0, 0) | (1, 0) | (2, 0) | ... | (width, 0)
+|  |  |  |  |.
 | ------ | ------ | ------ | ------ | ------
-| (0, 1) | (1, 1) | (2, 1) | ... | (width, 1)
-| (0, 2) | (1, 2) | (2, 2) | ... | (width, 2)
+| (0, 0) | (1, 0) | (2, 0) | ... | (width-1, 0)
+| (0, 1) | (1, 1) | (2, 1) | ... | (width-1, 1)
+| (0, 2) | (1, 2) | (2, 2) | ... | (width-1, 2)
 | ... | ... | ... | ... | ...
-| (0, height) | (1, height) | ... | ... | (width, height)
+| (0, height-1) | (1, height-1) | ... | ... | (width-1, height-1)
 
 
 #### Allowed value for board tiles are:
