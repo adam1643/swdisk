@@ -53,7 +53,7 @@ Please use only method `set_board_tile(x, y, value)` for modifying puzzle data!
 You can always use method `check_solution()` for checking if puzzle is solved correctly. It will return `True` is solution is correct and `False` otherwise.
 
 # DB structure of puzzles.db:
-TABLE 'puzzle':
+TABLE `puzzle`:
 
 | id              | rows       | cols | row_hints | col_hints | is_unique | difficulty | colors
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |

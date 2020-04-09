@@ -4,7 +4,7 @@ from database import DatabaseHandler
 
 class GUIDatabase:
     def __init__(self, queue):
-        self.queue = queue
+        self.queue = queue  # queue used to communicate with other windows
 
         self.layout = None
         self.window = None
@@ -14,8 +14,8 @@ class GUIDatabase:
 
     def set_layout(self):
         diff_layout = [[sg.Checkbox('Very easy', size=(15, 1))], [sg.Checkbox('Easy', default=True)],
-                        [sg.Checkbox('Medium', size=(15, 1))], [sg.Checkbox('Hard', default=True)],
-                        [sg.Checkbox('Very hard', size=(15, 1))]]
+                       [sg.Checkbox('Medium', size=(15, 1))], [sg.Checkbox('Hard', default=True)],
+                       [sg.Checkbox('Very hard', size=(15, 1))]]
         results_layout = [[sg.Text('ID\tRows\tCols\tDiff', size=(30, 1))],
                           [sg.Listbox(key='-SEL_PUZZLES-', values=[], select_mode=sg.LISTBOX_SELECT_MODE_EXTENDED, size=(30, 15))],
                           [sg.Button(button_text='Load all puzzles'), sg.Button(button_text='Load selected puzzles')]]
