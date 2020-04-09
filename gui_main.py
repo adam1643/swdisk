@@ -29,16 +29,23 @@ class GUIMain:
 
         menu_layout = [[sg.Button('Load game from file', key='-FILE_LOAD-'), sg.Button('Load game from database', key='-DB_LOAD-')]]
 
-        loaded_layout = [[sg.Multiline('kk', key='-LOADED_DATA-')],
-                         [sg.Button('Init games with loaded data', key='-INIT_GAMES-')]]
+        loaded_layout = [[sg.Multiline('', key='-LOADED_DATA-')],
+                         [sg.Button('Init games with loaded data', key='-INIT_GAMES-')],
+                         [sg.Button('Solver1', key='-SOLVER1-'), sg.Button('Solver2', key='-SOLVER2-'), sg.Button('Solver3', key='-SOLVER2-')],
+                         ]
 
-        self.layout = [
+        loading_data_layout = [
             [sg.Menu(menu_definition)],
             [sg.Frame('Single game', menu_layout)],
             [sg.Frame('Loaded puzzles', loaded_layout)]
         ]
 
+        self.layout = [
+            [sg.Frame('Game data', loading_data_layout), sg.Graph(canvas_size=(400, 400), graph_bottom_left=(0, 400), graph_top_right=(400, 0), background_color='black', key='graph', tooltip='Perforamnce graph')]
+        ]
+
         self.window = sg.Window('Nonogram solver', self.layout, finalize=True, resizable=True)
+        self.window['graph'].draw_text('Placeholder for results graph/table', (200, 200), text_location=sg.TEXT_LOCATION_CENTER, font='Courier 15', color='white')
 
     def read_queue(self, item):
         if item[0] == 'ids':
@@ -62,10 +69,12 @@ class GUIMain:
                     raise ValueError()
                 self.games = []
                 for id in loaded_data:
+                    if not isinstance(id, int):
+                        raise ValueError()
                     nonogram = Nonogram()
                     nonogram.load_from_db(id)
                     self.games.append(nonogram)
-            except ValueError:
+            except (ValueError, SyntaxError):
                 sg.popup_error('Entered data incorrect')
 
         if not self.game_gui_opened and event in ('...file', '-FILE_LOAD-'):
