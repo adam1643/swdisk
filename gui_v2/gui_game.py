@@ -126,22 +126,26 @@ class GUIGame:
         # first remove all existing hints
         self.clear_hints()
 
+        max_no_row_hints, max_no_col_hints = max([len(r) for r in rows]), max([len(c) for c in cols])
+
         # populate all row hints
         for row_index, row in enumerate(rows):
+            no_of_hints = len(row)
             for index, num in enumerate(row):
                 rh = self.row_hints.draw_text('{}'.format(num if num > 0 else ""),
                                               (10 + self.TIP_SIZE * (index / len(row)),
                                                self.BOX_HEIGHT / 2 + row_index * self.BOX_HEIGHT),
-                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 20')
+                                              text_location=sg.TEXT_LOCATION_CENTER, font=f'Courier {int(10 + 10*(1/max_no_row_hints))}')
                 self.row_hint_ids.append(rh)
 
         # populate all column hints
         for col_index, col in enumerate(cols):
+            no_of_hints = len(col)
             for index, num in enumerate(col):
                 ch = self.col_hints.draw_text('{}'.format(num if num > 0 else ""),
                                               (5 + self.TIP_SIZE + self.BOX_WIDTH // 2 + col_index * self.BOX_WIDTH,
                                                10 + self.TIP_SIZE * (index / len(col))),
-                                              text_location=sg.TEXT_LOCATION_CENTER, font='Courier 20')
+                                              text_location=sg.TEXT_LOCATION_CENTER, font=f'Courier {int(10 + 10*(1/max_no_col_hints))}')
                 self.col_hint_ids.append(ch)
 
     def redraw(self):
@@ -195,10 +199,10 @@ class GUIGame:
 
         # load game from database
         if event in 'Load from database':
-            popup_text = sg.popup_get_text('Choose puzzle ID (1-9000)', 'Load puzzle from database')
+            popup_text = sg.popup_get_text('Choose puzzle ID (1-9800)', 'Load puzzle from database')
             if popup_text:
                 puzzle_id = int(popup_text)
-                if 0 < puzzle_id < 9001:
+                if 0 < puzzle_id < 9801:
                     self.game.load_from_db(puzzle_id)
                     self.reload()
                     self.redraw_hints(self.game.rows, self.game.cols)
