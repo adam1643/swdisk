@@ -10,6 +10,11 @@ class SolverLogicHeuristics:
 
     def preprocess(self):
         for idx, row in enumerate(self.game.rows):
+            if len(row) == 0:
+                for i in range(self.game.width):
+                    self.game.set_board_tile(i, idx, -1)
+                continue
+
             hint_sum = 0
             for r in row:
                 hint_sum += r + 1
@@ -45,6 +50,11 @@ class SolverLogicHeuristics:
                         self.game.set_board_tile(i, idx, 1)
 
         for idx, col in enumerate(self.game.cols):
+            if len(col) == 0:
+                for i in range(self.game.height):
+                    self.game.set_board_tile(idx, i, -1)
+                continue
+
             hint_sum = 0
             for c in col:
                 hint_sum += c + 1
