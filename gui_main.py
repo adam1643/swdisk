@@ -83,10 +83,10 @@ class GUIMain:
             self.game_gui_opened = True
 
         if not self.game_gui_opened and event in ('...database', '-DB_LOAD-'):
-            popup_text = sg.popup_get_text('Choose puzzle ID (1-9000)', 'Load puzzle from database')
+            popup_text = sg.popup_get_text('Choose puzzle ID (1-9800)', 'Load puzzle from database')
             if popup_text:
                 puzzle_id = int(popup_text)
-                if 0 < puzzle_id < 9001:
+                if 0 < puzzle_id < 9801:
                     self.game_gui = GUIGame(self.queue, db_id=puzzle_id)
                     self.game_gui.set_layout()
                     self.game_gui_opened = True
