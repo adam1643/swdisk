@@ -41,6 +41,7 @@ class GUIGame:
         self.col_hints = None   # pointer to window fragment containing hints for columns
 
         self.queue = queue.Queue()
+        self.threads_id = []
 
     def reload(self):
         self.clear_hints()
@@ -91,8 +92,8 @@ class GUIGame:
                       (-1, self.WINDOW_SIZE_Y + 1), (self.WINDOW_SIZE_X + 1, -1),
                       key='-GRAPH-', change_submits=True, drag_submits=False)],
             [sg.Button('Check'), sg.FileBrowse('Load file', target='-FILEBROWSE-'),
-             sg.Button('Load from database'), sg.Button('Solve with DFS')],
-            [sg.Input(key='-FILEBROWSE-', enable_events=True, visible=False)]
+             sg.Button('Load from database'), sg.Button('Solve with DFS'), sg.Button('Solve with Logic Heuristics'), sg.Button('Solve with random')],
+            [sg.Input(key='-FILEBROWSE-', enable_events=True, visible=False), sg.Button('STOP')]
         ]
 
         self.window = sg.Window('Window Title', self.layout, finalize=True, resizable=True)
@@ -221,6 +222,22 @@ class GUIGame:
         if event in 'Solve with DFS':
             thread_id = threading.Thread(target=self.game.solve, daemon=True)
             thread_id.start()
+            self.threads_id.append(thread_id)
+
+        # solve game with logic heuristics
+        if event in 'Solve with Logic Heuristics':
+            thread_id = threading.Thread(target=self.game.solve, daemon=True)
+            thread_id.start()
+            self.threads_id.append(thread_id)
+
+        # solve game with random
+        if event in 'Solve with random':
+            thread_id = threading.Thread(target=self.game.solve, daemon=True)
+            thread_id.start()
+            self.threads_id.append(thread_id)
+
+        if event in 'STOP':
+            self.game.solver.stop_solver()
 
         if event in '-GRAPH-':
             mouse = values['-GRAPH-']
