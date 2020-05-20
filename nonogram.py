@@ -2,6 +2,9 @@ import numpy as np
 import ast  # for evaluating data loaded from file
 from database import DatabaseHandler
 from solver_dfs import SolverDFS
+from solver_logic_heuristics import SolverLogicHeuristics
+from solver_random import SolverRandom
+from solver_ga import SolverGA
 
 
 class Nonogram:
@@ -15,12 +18,27 @@ class Nonogram:
         self.db_handler = DatabaseHandler('puzzles.db')  # pointer to database handler used for loading puzzles from database
         self.solution = []  # 2d array storing solution of the puzzle (1st row, 2nd row, etc.)
 
+        # self.solver = SolverLogicHeuristics(self)
+        self.solver = SolverRandom(self)
+
     def init_game(self, width, height, rows, cols):
         self.width = width
         self.height = height
         self.rows = np.array(rows)
         self.cols = np.array(cols)
         self.board = np.zeros((self.height, self.width), dtype=int)
+
+    def choose_solver(self, solver):
+        if solver == 'dfs':
+            self.solver = SolverDFS(self)
+        elif solver == 'heuristics':
+            self.solver = SolverLogicHeuristics(self)
+        elif solver == 'random':
+            self.solver = SolverRandom(self)
+        elif solver == 'ga':
+            self.solver = SolverGA(self)
+        else:
+            raise TypeError(f'Solver {solver} does not exist!')
 
     def load_from_file(self, filename):
         f = open(filename, 'r')
@@ -49,6 +67,7 @@ class Nonogram:
         self.cols = np.array(ast.literal_eval(game_data[4]))
 
         self.board = np.zeros((self.height, self.width), dtype=int)
+        self.solver = SolverRandom(self)
 
     @staticmethod
     # converts line of tiles to list containing lengths of continuous colored fields
@@ -137,5 +156,6 @@ class Nonogram:
         self.board[y][x] = value
 
     def solve(self):
-        solver = SolverDFS(self)
-        solver.solve()
+        # solver = SolverDFS(self)
+        # solver.solve()
+        self.solver.solve()

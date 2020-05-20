@@ -92,7 +92,8 @@ class GUIGame:
                       (-1, self.WINDOW_SIZE_Y + 1), (self.WINDOW_SIZE_X + 1, -1),
                       key='-GRAPH-', change_submits=True, drag_submits=False)],
             [sg.Button('Check'), sg.FileBrowse('Load file', target='-FILEBROWSE-'),
-             sg.Button('Load from database'), sg.Button('Solve with DFS'), sg.Button('Solve with Logic Heuristics'), sg.Button('Solve with random')],
+             sg.Button('Load from database'), sg.Button('Solve with DFS'), sg.Button('Solve with Logic Heuristics'), sg.Button('Solve with random'),
+             sg.Button('Solve with GA')],
             [sg.Input(key='-FILEBROWSE-', enable_events=True, visible=False), sg.Button('STOP')]
         ]
 
@@ -220,18 +221,27 @@ class GUIGame:
 
         # solve game with DFS algorithm
         if event in 'Solve with DFS':
+            self.game.choose_solver('dfs')
             thread_id = threading.Thread(target=self.game.solve, daemon=True)
             thread_id.start()
             self.threads_id.append(thread_id)
 
         # solve game with logic heuristics
         if event in 'Solve with Logic Heuristics':
+            self.game.choose_solver('heuristics')
             thread_id = threading.Thread(target=self.game.solve, daemon=True)
             thread_id.start()
             self.threads_id.append(thread_id)
 
         # solve game with random
         if event in 'Solve with random':
+            self.game.choose_solver('random')
+            thread_id = threading.Thread(target=self.game.solve, daemon=True)
+            thread_id.start()
+            self.threads_id.append(thread_id)
+
+        if event in 'Solve with GA':
+            self.game.choose_solver('ga')
             thread_id = threading.Thread(target=self.game.solve, daemon=True)
             thread_id.start()
             self.threads_id.append(thread_id)
