@@ -43,8 +43,6 @@ class SolverLogicHeuristics:
                 end += 1
             hint_end = reversed(list(hint_end))
             for s, e in zip(hint_start, hint_end):
-                # if idx == 0:
-                    # print(s, e)
                 if s >= e:
                     for i in range(e, s+1):
                         self.game.set_board_tile(i, idx, 1)
@@ -91,6 +89,39 @@ class SolverLogicHeuristics:
 
     def subprocedure_1(self, line, hints):
         line_len = len(line)
+        left_most, right_most = self.prepare_edge_cases(line, hints)
+
+        hint_sum = 0
+        for hint in hints:
+            hint_sum += hint + 1
+        hint_sum -= 1
+
+        for l, r in zip(left_most, right_most):
+            l_range = list(range(l[0], l[1]+1))
+            r_range = list(range(r[0], r[1]+1))
+            # print(l_range, r_range)
+            cross_section = list(set(l_range) & set(r_range))
+            for pos in cross_section:
+                line[pos] = 1
+
+    def subprocedure_2(self, line, hints):
+        line_len = len(line)
+        left_most, right_most = self.prepare_edge_cases(line, hints)
+
+        hint_sum = 0
+        for hint in hints:
+            hint_sum += hint + 1
+        hint_sum -= 1
+
+        print(left_most, right_most)
+
+        for i in range(len(hints) - 1):
+            if right_most[i][1] < left_most[i+1][0] - 1:
+                for j in range(right_most[i][1]+1, left_most[i+1][0]):
+                    line[j] = -1
+
+    def prepare_edge_cases(self, line, hints):
+        line_len = len(line)
         left_most, right_most = [], []
 
         hint_sum = 0
@@ -98,28 +129,45 @@ class SolverLogicHeuristics:
             hint_sum += hint + 1
         hint_sum -= 1
 
-        pos = 0
-        left_line = line.copy()
-        for hint in hints:
-            if self.insert_line(left_line, pos, hint):
-                left_most.append((pos, pos+hint-1))
-                pos += hint
-            pos += 1
-            if pos > line_len:
-                if self.check_line(line, hints):
-                    print("CORRECT!")
-                else:
-                    raise ValueError("Position too far! ", pos)
+        left_most = self.prepare_left_most(line, hints)
+        # pos = 0
+        # left_line = line.copy()
+        # for hint in hints:
+        #     while pos < line_len:
+        #         line_backup = left_line.copy()
+        #         if self.insert_line(left_line, pos, hint):
+        #             if self.is_line_possible(left_line, hints):
+        #                 left_most.append((pos, pos + hint - 1))
+        #                 pos += hint
+        #                 break
+        #             else:
+        #                 left_line.clear()
+        #                 left_line.extend(line_backup)
+        #         pos += 1
+        #     if pos > line_len:
+        #         if self.check_line(line, hints):
+        #             print("CORRECT!")
+        #         else:
+        #             raise ValueError("Position too far! ", pos)
         # print(left_line)
+        # print("Left most", left_most)
 
         pos = 0
         right_line = list(reversed(line))
         hints_reversed = list(reversed(hints))
         for hint in hints_reversed:
-            if self.insert_line(right_line, pos, hint):
-                right_most.append((pos, pos + hint - 1))
-                pos += hint
-            pos += 1
+            while pos < line_len:
+                line_backup = right_line.copy()
+                # print("pos", pos)
+                if self.insert_line(right_line, pos, hint):
+                    if self.is_line_possible(right_line, hints_reversed):
+                        right_most.append((pos, pos + hint - 1))
+                        pos += hint
+                        break
+                    else:
+                        right_line.clear()
+                        right_line.extend(line_backup)
+                pos += 1
             if pos > line_len:
                 pass
                 # raise ValueError("Position too far! ", pos)
@@ -130,17 +178,78 @@ class SolverLogicHeuristics:
         # print(line)
         # print(left_most, right_most)
 
-        for l, r in zip(left_most, right_most):
-            l_range = list(range(l[0], l[1]+1))
-            r_range = list(range(r[0], r[1]+1))
-            # print(l_range, r_range)
-            cross_section = list(set(l_range) & set(r_range))
-            for pos in cross_section:
-                line[pos] = 1
+        return left_most, right_most
+
+    def prepare_left_most(self, line, hints):
+        line_len = len(line)
+        left_most = []
+
+        hint_sum = 0
+        for hint in hints:
+            hint_sum += hint + 1
+        hint_sum -= 1
+
+        pos = 0
+        offset = [0 for _ in range(len(hints))]
+        max_offset_idx = len(offset) - 1
+        curr_offset_idx = max_offset_idx
+        perf_index = 0
+        while True:
+            perf_index += 1
+            left_line = line.copy()
+            left_most = []
+            pos = 0
+
+            for idx, hint in enumerate(hints):
+                pos += offset[idx]
+                while pos + hint <= line_len:
+                    if self.insert_line(left_line, pos, hint):
+                        left_most.append((pos, pos + hint - 1))
+                        pos += hint
+                        break
+                    pos += 1
+
+                if pos > line_len:
+                    if self.check_line(line, hints):
+                        print("CORRECT!")
+                        print(perf_index)
+                        return left_most
+                    else:
+                        pass
+                        # raise ValueError("Position too far! ", pos)
+
+            # print(left_line)
+            if not self.is_line_possible(left_line, hints, always_true=False):
+                if hint_sum + sum(offset) < line_len:
+                    offset[curr_offset_idx] += 1
+                else:
+                    while hint_sum + sum(offset) >= line_len:
+                        offset[curr_offset_idx] = 0
+                        offset[curr_offset_idx-1] += 1
+                        curr_offset_idx -= 1
+                    curr_offset_idx = max_offset_idx
+            else:
+                print("Here", perf_index)
+                return left_most
 
     def check_line(self, line, hints):
         fixed_solution = self.game.prepare_line(line)
         return np.array_equal(fixed_solution, np.array(hints, dtype=int))
+
+    def is_line_possible(self, line, hints, always_true=True):
+        if always_true:
+            return True
+        fixed_solution = self.game.prepare_line(line)
+        if len(fixed_solution) > len(hints):
+            return False
+        hint_idx = 0
+        for idx, sol in enumerate(fixed_solution):
+            if hint_idx >= len(hints):
+                return False
+            if sol > hints[hint_idx]:
+                hint_idx += 1
+
+        return True
 
     def insert_line(self, line, pos, length):
         line_copy = line.copy()
@@ -196,3 +305,81 @@ class SolverLogicHeuristics:
         #     x, y = randint(0, 4), randint(0, 4)
         #     self.game.set_board_tile(x, y, 1)
         #     time.sleep(1)
+
+
+class Solution:
+    def __init__(self, rows, cols):
+        self.fitness = 0
+
+        self.rows = rows
+        self.cols = cols
+        self.board = np.zeros((self.rows, self.cols), dtype=int)
+
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if random() < 0.6:
+                    self.board[i][j] = 1
+
+    def set_flatten_board(self, board):
+        self.board = np.zeros((self.rows, self.cols), dtype=int)
+        # print("board", board, self.rows, self.cols)
+        idx = 0
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.board[i][j] = board[idx]
+                idx += 1
+
+    def mutate(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if random() < 0.05:
+                    if self.board[i][j] == 1:
+                        self.board[i][j] = 0
+                    else:
+                        self.board[i][j] = 1
+
+    def prepare_line(self, line):
+        data = []
+        index = 0
+        while index < len(line):
+            tmp = 0
+            while index < len(line) and line[index] == 1:
+                tmp += 1
+                index += 1
+            if tmp > 0:
+                data.append(tmp)
+            index += 1
+        return np.array(data, dtype=int)
+
+    def calculate_fitness(self, row_hints, col_hints):
+        fitness = 0
+        # print(self.board)
+        for i in range(self.rows):
+            fitness += self.calculate_difference(row_hints[i], self.prepare_line(self.board[i]))
+
+        for i in range(self.cols):
+            fitness += self.calculate_difference(col_hints[i], self.prepare_line(self.board[:, i]))
+
+        self.fitness = fitness
+
+    def calculate_difference(self, arr1, arr2):
+        arr1 = list(arr1)
+        arr2 = list(arr2)
+        while len(arr1) > len(arr2):
+            arr2.append(0)
+
+        while len(arr2) > len(arr1):
+            arr1.append(0)
+
+        if len(arr1) == 0 and len(arr2) != 0:
+            return 100*sum(arr2)
+
+        score = 0
+        for a, b in zip(arr1, arr2):
+            score += abs(a-b)
+        return score
+
+    def shuffle(self):
+        flat = self.board.flatten()
+        shuffle(flat)
+        self.set_flatten_board(flat)
