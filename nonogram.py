@@ -5,10 +5,11 @@ from solver_dfs import SolverDFS
 from solver_logic_heuristics import SolverLogicHeuristics
 from solver_random import SolverRandom
 from solver_ga import SolverGA
+from timeit import default_timer as timer
 
 
 class Nonogram:
-    def __init__(self):
+    def __init__(self, queue=None):
         self.width = 0      # number of columns
         self.height = 0     # number of rows
         self.rows = []      # 2d array storing hints for rows
@@ -19,7 +20,8 @@ class Nonogram:
         self.solution = []  # 2d array storing solution of the puzzle (1st row, 2nd row, etc.)
 
         # self.solver = SolverLogicHeuristics(self)
-        self.solver = SolverRandom(self)
+        self.solver = SolverGA(self)
+        self.queue = queue
 
     def init_game(self, width, height, rows, cols):
         self.width = width
@@ -155,7 +157,10 @@ class Nonogram:
             raise ValueError(f"Value incorrect. Allowed values: (-1, 0, 1); given value: {value}")
         self.board[y][x] = value
 
-    def solve(self):
-        # solver = SolverDFS(self)
-        # solver.solve()
-        self.solver.solve()
+    def solve(self, timeout=None, game_id=None):
+        start = timer()
+        self.solver.solve(stop=timeout, game_id=game_id, queue=self.queue)
+        end = timer()
+
+        if self.queue is not None:
+            self.queue.append(['time', end - start])

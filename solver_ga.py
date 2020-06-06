@@ -1,5 +1,7 @@
 from random import randint, random, shuffle
+from utils import timer, DEFAULT_TIMEOUT
 import numpy as np
+import threading
 
 
 class SolverGA:
@@ -22,18 +24,22 @@ class SolverGA:
         self.all_fitnesses = []
         self.all_counts = []
 
-    def solve(self):
+    def solve(self, stop=None, game_id=None, queue=None):
         """Method for solving Nonograms. If time consuming, should be run in another thread"""
+        event = threading.Event()
+        threading.Thread(target=timer, args=(event, stop if stop is not None else DEFAULT_TIMEOUT), daemon=True).start()
+
+        self.preprocess()
         self.init_solver()
-        while True:
+        while not event.is_set():
             if not self.finished:
-                if self.fit_unchanged_count >= 300:
+                if self.fit_unchanged_count >= 1000:
                     self.mass_mutate()
                     self.mass_mutations_count += 1
                     self.fit_unchanged_count = 0
                     print("mass mutated!")
 
-            if self.mass_mutations_count >= 8:
+            if self.mass_mutations_count >= 20:
                 self.reset()
                 self.reset_count += 1
                 print("reset")
@@ -43,7 +49,7 @@ class SolverGA:
                 self.finished = True
                 self.solved = False
                 print("CANNOT SOLVE!")
-                return
+                break
 
             self.evolve()
             best_solution = self.get_best_solution()
@@ -62,12 +68,14 @@ class SolverGA:
                 self.solved = True
                 print("best fitness", best_solution.fitness)
                 print("best solution", best_solution.board)
-                return
+                break
 
             if self.is_converged():
                 self.finished = True
                 self.solved = False
-                return
+                break
+        if game_id is not None:
+            queue.append(['result', [game_id, self.solved]])
 
     def init_solver(self):
         self.rows = self.game.height
@@ -77,6 +85,15 @@ class SolverGA:
         for i in range(self.pool_size):
             solution = Solution(self.rows, self.columns)
             self.solutions.append(solution)
+
+        self.solutions[0] = Solution(self.rows, self.columns)
+        self.solutions[0].set_flatten_board(self.game.board.flatten())
+
+        self.solutions[1] = Solution(self.rows, self.columns)
+        self.solutions[1].set_flatten_board(self.game.board.flatten())
+
+        self.solutions[2] = Solution(self.rows, self.columns)
+        self.solutions[2].set_flatten_board(self.game.board.flatten())
 
         self.calculate_fitness()
 
@@ -164,6 +181,85 @@ class SolverGA:
         # print("best fitness", sorted_solutions[0].fitness)
         return sorted_solutions[0]
 
+    def preprocess(self):
+        for idx, row in enumerate(self.game.rows):
+            if len(row) == 0:
+                for i in range(self.game.width):
+                    self.game.set_board_tile(i, idx, -1)
+                continue
+
+            hint_sum = 0
+            for r in row:
+                hint_sum += r + 1
+            hint_sum -= 1
+
+            if hint_sum == self.game.width:
+                curr_idx = 0
+                for r in row:
+                    for _ in range(r):
+                        self.game.set_board_tile(curr_idx, idx, 1)
+                        curr_idx += 1
+                    if curr_idx < self.game.width - 1:
+                        self.game.set_board_tile(curr_idx, idx, -1)
+                        curr_idx += 1
+                continue
+
+            hint_start, hint_end = [], []
+            start, end = 0, 0
+            for r_idx, r in enumerate(row):
+                start += r
+                hint_start.append(start-1)
+                start += 1
+            for r_idx, r in reversed(list(enumerate(row))):
+                end += r
+                hint_end.append(self.game.width - end)
+                end += 1
+            hint_end = reversed(list(hint_end))
+            for s, e in zip(hint_start, hint_end):
+                if s >= e:
+                    for i in range(e, s+1):
+                        self.game.set_board_tile(i, idx, 1)
+
+        for idx, col in enumerate(self.game.cols):
+            if len(col) == 0:
+                for i in range(self.game.height):
+                    self.game.set_board_tile(idx, i, -1)
+                continue
+
+            hint_sum = 0
+            for c in col:
+                hint_sum += c + 1
+            hint_sum -= 1
+
+            if hint_sum == self.game.height:
+                curr_idx = 0
+                for c in col:
+                    for _ in range(c):
+                        self.game.set_board_tile(idx, curr_idx, 1)
+                        curr_idx += 1
+                    if curr_idx < self.game.height - 1:
+                        self.game.set_board_tile(idx, curr_idx, -1)
+                        curr_idx += 1
+                continue
+
+            hint_start, hint_end = [], []
+            start, end = 0, 0
+            for c_idx, c in enumerate(col):
+                start += c
+                hint_start.append(start-1)
+                start += 1
+            for c_idx, c in reversed(list(enumerate(col))):
+                end += c
+                hint_end.append(self.game.height - end)
+                end += 1
+            hint_end = reversed(list(hint_end))
+            for s, e in zip(hint_start, hint_end):
+                if idx == 0:
+                    print(s, e)
+                if s >= e:
+                    for i in range(e, s+1):
+                        self.game.set_board_tile(idx, i, 1)
+
 
 class Solution:
     def __init__(self, rows, cols):
@@ -190,7 +286,7 @@ class Solution:
     def mutate(self):
         for i in range(self.rows):
             for j in range(self.cols):
-                if random() < 0.1:
+                if random() < 0.05:
                     if self.board[i][j] == 1:
                         self.board[i][j] = 0
                     else:
@@ -229,6 +325,9 @@ class Solution:
         while len(arr2) > len(arr1):
             arr1.append(0)
 
+        if len(arr1) == 0 and len(arr2) != 0:
+            return 100*sum(arr2)
+
         score = 0
         for a, b in zip(arr1, arr2):
             score += abs(a-b)
@@ -238,5 +337,3 @@ class Solution:
         flat = self.board.flatten()
         shuffle(flat)
         self.set_flatten_board(flat)
-
-
