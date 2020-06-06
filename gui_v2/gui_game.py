@@ -89,12 +89,12 @@ class GUIGame:
                       (0, self.WINDOW_SIZE_Y), (self.TIP_SIZE, 0),
                       key='-ROWS-', change_submits=True, drag_submits=False),
              sg.Graph((self.WINDOW_SIZE_X, self.WINDOW_SIZE_Y),
-                      (-1, self.WINDOW_SIZE_Y + 1), (self.WINDOW_SIZE_X + 1, -1),
+                      (-5, self.WINDOW_SIZE_Y + 5), (self.WINDOW_SIZE_X + 5, -5),
                       key='-GRAPH-', change_submits=True, drag_submits=False)],
-            [sg.Button('Check'), sg.FileBrowse('Load file', target='-FILEBROWSE-'),
-             sg.Button('Load from database'), sg.Button('Solve with DFS'), sg.Button('Solve with Logic Heuristics'), sg.Button('Solve with random'),
+            [sg.Button('CHECK', button_color=('white', 'red')), sg.FileBrowse('Load file', target='-FILEBROWSE-'), sg.Button('Load from database')],
+            [sg.Button('Solve with DFS'), sg.Button('Solve with Logic Heuristics'), sg.Button('Solve with random'),
              sg.Button('Solve with GA')],
-            [sg.Input(key='-FILEBROWSE-', enable_events=True, visible=False), sg.Button('STOP')]
+            [sg.Input(key='-FILEBROWSE-', enable_events=True, visible=False)]
         ]
 
         self.window = sg.Window('Window Title', self.layout, finalize=True, resizable=True)
@@ -193,11 +193,11 @@ class GUIGame:
             self.stored_size = (self.window.Size[0], self.window.Size[1])
 
         # check solution
-        if event in 'Check':
+        if event in '-CHECK-':
             if self.game.check_solution():
-                sg.popup_ok('CORRECT')
+                sg.popup_ok('Solution correct!', text_color='green', font='Arial 15 bold', title='')
             else:
-                sg.popup_ok('WRONG')
+                sg.popup_ok('Solution wrong!', text_color='red', font='Arial 15 bold', title='')
 
         # load game from database
         if event in 'Load from database':
@@ -245,9 +245,6 @@ class GUIGame:
             thread_id = threading.Thread(target=self.game.solve, daemon=True)
             thread_id.start()
             self.threads_id.append(thread_id)
-
-        if event in 'STOP':
-            self.game.solver.stop_solver()
 
         if event in '-GRAPH-':
             mouse = values['-GRAPH-']
