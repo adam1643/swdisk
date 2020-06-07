@@ -192,10 +192,10 @@ class GUI:
 
         # load game from database
         if event in 'Load from database':
-            popup_text = sg.popup_get_text('Choose puzzle ID (1-9000)', 'Load puzzle from database')
+            popup_text = sg.popup_get_text('Choose puzzle ID (1-5584)', 'Load puzzle from database')
             if popup_text:
                 puzzle_id = int(popup_text)
-                if 0 < puzzle_id < 9001:
+                if 0 < puzzle_id < 5585:
                     self.game.load_from_db(puzzle_id)
                     self.reload()
                     self.redraw_hints(self.game.rows, self.game.cols)
