@@ -61,7 +61,7 @@ class Nonogram:
         self.board = np.zeros((self.height, self.width), dtype=int)
 
     def load_from_db(self, puzzle_id):
-        sql_select = self.db_handler.select_square_data_by_id(puzzle_id)
+        sql_select = self.db_handler.select_data_by_id(puzzle_id)
         game_data = sql_select[0]
         self.width = game_data[2]
         self.height = game_data[1]

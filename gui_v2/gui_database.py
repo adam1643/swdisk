@@ -20,8 +20,12 @@ class GUIDatabase:
                           [sg.Listbox(key='-SEL_PUZZLES-', values=[], select_mode=sg.LISTBOX_SELECT_MODE_EXTENDED, size=(30, 15))],
                           [sg.Button(button_text='Load all puzzles'), sg.Button(button_text='Load selected puzzles')]]
 
+        diff2_layout = [[sg.Button('100 easy puzzles', key='-EASY-')],
+                        [sg.Button('100 medium puzzles', key='-MEDIUM-')],
+                        [sg.Button('100 hard puzzles', key='-HARD-')]]
+
         self.layout = [[sg.Text('Search in database'), sg.Text('', key='-OUTPUT-')],
-                       [sg.Frame('Difficulty', diff_layout)],
+                       [sg.Frame('Difficulty', diff_layout), sg.Frame('Random sets', diff2_layout)],
                        [sg.Text('No. of rows', size=(10, 1)), sg.InputCombo(('<', '<=', '=', '>=', '>'), default_value='=', size=(3, 1)), sg.InputCombo([str(5*i) for i in range(1, 21)], default_value=5, size=(8, 1))],
                        [sg.Text('No. of cols', size=(10, 1)), sg.InputCombo(('<', '<=', '=', '>=', '>'), default_value='=', size=(3, 1)), sg.InputCombo([str(5 * i) for i in range(1, 21)], default_value=5, size=(8, 1))],
                        [sg.Submit(button_text='Search', tooltip='Click to submit this form')],
@@ -63,6 +67,21 @@ class GUIDatabase:
             self.queue.append(['ids', [self.selected_data[i] for i in selected]])
             self.window.close()
             return False
+
+        if event in ('-EASY-', '-MEDIUM-', '-HARD-'):
+            if event in '-EASY-':
+                level = 'easy'
+            if event in '-MEDIUM-':
+                level = 'medium'
+            if event in '-HARD-':
+                level = 'hard'
+            data = self.db_handler.select_random_100_unique_square_data_by_level(level)
+            # parse data for displaying
+            parsed_data = [f'{d[0]}\t\t{d[1]}\t\t{d[2]}\t{level}' for d in data]
+            self.window['-SEL_PUZZLES-'].update(values=parsed_data)
+
+            # save IDs of selected puzzles
+            self.selected_data = [d[0] for d in data]
 
         if event in 'Search':
             self.prepare_select(values)
