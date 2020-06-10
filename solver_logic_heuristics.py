@@ -274,6 +274,8 @@ class SolverLogicHeuristics:
             self.state = 1
             return
 
+        status_changed = False
+
         for i in range(self.game.height):
             line, hints = list(self.game.get_board_row(i)), self.game.get_hints_row(i)
             if proc == 1:
@@ -290,6 +292,7 @@ class SolverLogicHeuristics:
                         self.game.set_board_tile(index, i, line)
                     index += 1
                 print("Difference!")
+                status_changed = True
 
         for i in range(self.game.width):
             line, hints = list(self.game.get_board_column(i)), self.game.get_hints_column(i)
@@ -312,20 +315,29 @@ class SolverLogicHeuristics:
                         self.game.set_board_tile(i, index, val)
                     index += 1
                 print("Difference!")
+                status_changed = True
 
-    def solve(self, stop, game_id, queue):
+        return status_changed
+
+    def solve(self, stop, game_id, queue, algorithm=None):
         self.solve_step(0)
-        self.solve_step(1)
-        self.solve_step(2)
-        # self.solve_step(1)
-        # self.solve_step(2)
-        # self.solve_step(1)
-        # self.solve_step(2)
-        # self.solve_step(1)
-        # self.solve_step(2)
-        # self.solve_step(1)
-        # self.solve_step(2)
+        event = threading.Event()
+        threading.Thread(target=timer, args=(event, stop if stop is not None else DEFAULT_TIMEOUT), daemon=True).start()
 
+        status = True
+        try:
+            while status and not event.is_set():
+                s1 = self.solve_step(1)
+                s2 = self.solve_step(2)
+
+                if not s1 and not s2:
+                    status = False
+        except:
+            pass
+
+        solved = self.game.check_solution()
+        if game_id is not None:
+            queue.append(['result', [game_id, solved], algorithm])
 
 
 class Solution:
@@ -350,7 +362,8 @@ class Solution:
         idx = 0
         for i in range(self.rows):
             for j in range(self.cols):
-                self.board[i][j] = board[idx]
+                if self.original[i][j] == 0:
+                    self.board[i][j] = board[idx]
                 idx += 1
 
     def mutate(self):
