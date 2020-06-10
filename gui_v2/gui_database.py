@@ -22,7 +22,8 @@ class GUIDatabase:
 
         diff2_layout = [[sg.Button('100 easy puzzles', key='-EASY-')],
                         [sg.Button('100 medium puzzles', key='-MEDIUM-')],
-                        [sg.Button('100 hard puzzles', key='-HARD-')]]
+                        [sg.Button('100 hard puzzles', key='-HARD-')],
+                        [sg.Button('100 very hard puzzles', key='-VERY_HARD-')]]
 
         self.layout = [[sg.Text('Search in database'), sg.Text('', key='-OUTPUT-')],
                        [sg.Frame('Difficulty', diff_layout), sg.Frame('Random sets', diff2_layout)],
@@ -75,6 +76,8 @@ class GUIDatabase:
                 level = 'medium'
             if event in '-HARD-':
                 level = 'hard'
+            if event in '-VERY_HARD-':
+                level = 'very hard'
             data = self.db_handler.select_random_100_unique_square_data_by_level(level)
             # parse data for displaying
             parsed_data = [f'{d[0]}\t\t{d[1]}\t\t{d[2]}\t{level}' for d in data]
