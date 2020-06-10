@@ -53,19 +53,24 @@ class DatabaseHandler:
         self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols''')
         return self.cursor.fetchall()
 
-    '''Select unique squares nonograms at easy level - easy level are nonograms with size from 5x5 to 20x20'''
+    '''Select unique squares nonograms at easy level - easy level are nonograms with size from 5x5 to 10x10'''
     def select_easy_unique_square_data(self):
-        self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols AND (rows > 4 AND rows < 21)''')
+        self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols AND (rows > 4 AND rows < 11)''')
         return self.cursor.fetchall()
 
-    '''Select unique squares nonograms at medium level - easy level are nonograms with size from 21x21 to 40x40'''
+    '''Select unique squares nonograms at medium level - easy level are nonograms with size from 15x15 to 20x20'''
     def select_medium_unique_square_data(self):
-        self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols AND (rows > 20 AND rows < 41)''')
+        self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols AND (rows > 14 AND rows < 21)''')
         return self.cursor.fetchall()
 
-    '''Select unique squares nonograms at hard level - easy level are nonograms with size from 41x41 to 99x99'''
+    '''Select unique squares nonograms at hard level - easy level are nonograms with size from 25x25 to 30x30'''
     def select_hard_unique_square_data(self):
-        self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols AND (rows > 40 AND rows < 100)''')
+        self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols AND (rows > 21 AND rows < 31)''')
+        return self.cursor.fetchall()
+
+    '''Select unique squares nonograms at hard level - easy level are nonograms with size from 35x35 to 40x40'''
+    def select_very_hard_unique_square_data(self):
+        self.cursor.execute('''SELECT * FROM puzzle WHERE is_unique=1 AND rows=cols AND (rows > 31 AND rows < 41)''')
         return self.cursor.fetchall()
 
     '''Method returns random 100 unique square nonograms at specific level'''
@@ -76,6 +81,8 @@ class DatabaseHandler:
             data = self.select_medium_unique_square_data()
         elif level == "hard":
             data = self.select_hard_unique_square_data()
+        elif level == 'very hard':
+            data = self.select_very_hard_unique_square_data()
         else:
             data = self.select_unique_square_data()
 
