@@ -31,6 +31,8 @@ class GUIMain:
         self.all_to_solve = 0
         self.solves_finished = 0
 
+        self.results = []
+
     def set_layout(self):
         sg.theme('default')
         menu_definition = [
@@ -104,6 +106,7 @@ class GUIMain:
         self.window['-NO_OF_GAMES-'].update('0')
 
         self.solves_finished = 0
+        self.results = []
 
     def read_queue(self, item):
         if item[0] == 'ids':
@@ -129,14 +132,22 @@ class GUIMain:
             self.window['-PROGRESS-'].update_bar(self.solves_finished)
 
             if self.all_to_solve == self.solves_finished:
-                sg.popup_ok('Calculations finished! Results updated!', title='')
+                decision = sg.popup_yes_no('Calculations finished! Do you want to save results to file?', title='')
+                if decision in 'Yes':
+                    folder = sg.popup_get_folder('Select folder where file should be saved', keep_on_top=True)
+                    file_name = sg.popup_get_text('Select filename:', default_text='results.txt', keep_on_top=True)
+                    print(folder + '/' + file_name)
 
         if item[0] == 'time':
-            print("time", item)
-            algorithm = item[2]
-            self.mean_times[algorithm - 1].append(item[1])
-            mean_time = sum(self.mean_times[algorithm - 1]) / len(self.mean_times[algorithm - 1])
-            self.window[f'-S{algorithm}_TIME-'].update(str(round(mean_time, 3)))
+            _, time, algorithm, game_id, result = item
+            self.results.append(item)
+
+            if result is True:
+                self.mean_times[algorithm - 1].append(time)
+                mean_time = sum(self.mean_times[algorithm - 1]) / len(self.mean_times[algorithm - 1])
+                self.window[f'-S{algorithm}_TIME-'].update(str(round(mean_time, 3)))
+
+
 
     def init_games(self):
         try:
