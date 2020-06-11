@@ -4,9 +4,7 @@ import numpy as np
 from random import randint, random, shuffle
 from utils import timer, DEFAULT_TIMEOUT
 import threading
-
 from solver_ga import SolverGA
-
 
 
 class SolverLogicHeuristics:
@@ -87,14 +85,11 @@ class SolverLogicHeuristics:
                 end += 1
             hint_end = reversed(list(hint_end))
             for s, e in zip(hint_start, hint_end):
-                if idx == 0:
-                    print(s, e)
                 if s >= e:
                     for i in range(e, s+1):
                         self.game.set_board_tile(idx, i, 1)
 
     def subprocedure_1(self, line, hints):
-        line_len = len(line)
         left_most, right_most = self.prepare_edge_cases(line, hints)
         if left_most is None:
             return
@@ -107,7 +102,6 @@ class SolverLogicHeuristics:
         for l, r in zip(left_most, right_most):
             l_range = list(range(l[0], l[1]+1))
             r_range = list(range(r[0], r[1]+1))
-            # print(l_range, r_range)
             cross_section = list(set(l_range) & set(r_range))
             for pos in cross_section:
                 line[pos] = 1
@@ -123,18 +117,10 @@ class SolverLogicHeuristics:
             hint_sum += hint + 1
         hint_sum -= 1
 
-        print(left_most, right_most)
-
-        # for i in range(len(hints) - 1):
-        #     if right_most[i][1] < left_most[i+1][0] - 1:
-        #         for j in range(right_most[i][1]+1, left_most[i+1][0]):
-        #             line[j] = -1
-
         if len(left_most) != len(right_most):
             return
 
         for i in range(len(hints)):
-            print("Left/rigth", left_most, right_most, hints, line)
             if i == 0:
                 for idx in range(left_most[i][0]):
                     line[idx] = -1
@@ -142,7 +128,6 @@ class SolverLogicHeuristics:
             if i == len(hints) - 1:
                 for idx in range(right_most[i][1] + 1, line_len):
                     line[idx] = -1
-                print("RIGHTS", right_most)
                 continue
 
             if right_most[i][1] < left_most[i+1][0] - 1:
@@ -195,18 +180,14 @@ class SolverLogicHeuristics:
             for idx, hint in enumerate(hints):
                 pos += offset[idx]
                 while pos + hint <= line_len:
-                    print("pos", pos, offset)
                     if self.insert_line(left_line, pos, hint):
-                        if True:#self.is_line_possible(left_line, hints, always_true=False):
-                            print('FOUND!')
-                            left_most.append((pos, pos + hint - 1))
-                            pos += hint
+                        left_most.append((pos, pos + hint - 1))
+                        pos += hint
                         break
                     pos += 1
 
                 if pos > line_len:
                     if self.check_line(line, hints):
-                        print("CORRECT!")
                         print(perf_index)
                         return left_most
                     else:
@@ -226,7 +207,6 @@ class SolverLogicHeuristics:
                             break
                     curr_offset_idx = max_offset_idx
             else:
-                print("Here", perf_index)
                 return left_most
         return None
 
@@ -282,10 +262,8 @@ class SolverLogicHeuristics:
             line, hints = list(self.game.get_board_row(i)), self.game.get_hints_row(i)
             if proc == 1:
                 self.subprocedure_1(line, hints)
-                print("proc1 row", i)
             elif proc == 2:
                 self.subprocedure_2(line, hints)
-                print("proc2 row", i)
 
             if not (list(self.game.get_board_row(i)) == line):
                 index = 0
@@ -300,10 +278,8 @@ class SolverLogicHeuristics:
             line, hints = list(self.game.get_board_column(i)), self.game.get_hints_column(i)
             if proc == 1:
                 self.subprocedure_1(line, hints)
-                print("proc1 col", i)
             elif proc == 2:
                 self.subprocedure_2(line, hints)
-                print("proc2 col", i)
 
             if not (list(self.game.get_board_column(i)) == line):
                 index = 0
