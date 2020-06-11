@@ -79,7 +79,6 @@ class GUIMain:
             [sg.Frame('Game data', loading_data_layout), sg.Frame('Results', results_layout)],
             [sg.ProgressBar(100, key='-PROGRESS-', size=(40, 10))]
         ]
-
         self.window = sg.Window('Nonogram solver', self.layout, finalize=True, resizable=True)
 
     def reset_games(self):
@@ -137,17 +136,16 @@ class GUIMain:
                     folder = sg.popup_get_folder('Select folder where file should be saved', keep_on_top=True)
                     file_name = sg.popup_get_text('Select filename:', default_text='results.txt', keep_on_top=True)
                     print(folder + '/' + file_name)
+                    self.save_results_to_file(folder + '/' + file_name)
 
         if item[0] == 'time':
             _, time, algorithm, game_id, result = item
+            time = round(time, 3)
             self.results.append(item)
-
             if result is True:
                 self.mean_times[algorithm - 1].append(time)
                 mean_time = sum(self.mean_times[algorithm - 1]) / len(self.mean_times[algorithm - 1])
                 self.window[f'-S{algorithm}_TIME-'].update(str(round(mean_time, 3)))
-
-
 
     def init_games(self):
         try:
@@ -173,6 +171,53 @@ class GUIMain:
                 a = threading.Thread(target=game.solve, args=(self.calc_timeout, idx, self.algorithm))
                 a.start()
                 a.join()
+
+    def save_results_to_file(self, filename):
+        f = open(filename, 'w')
+
+        f.write(f'Loaded games|{len(self.games)}\n\n')
+        mean_times = []
+        for i in range(4):
+            if len(self.mean_times[i]) == 0:
+                mean_times.append(0)
+            else:
+                mean_times.append(round(sum(self.mean_times[i])/len(self.mean_times[i]), 3))
+        f.write('Mean times\n')
+        f.write('Random|DFS|GA|Heuristics + GA|\n')
+        f.write(f'{mean_times[0]}|{mean_times[1]}|{mean_times[2]}|{mean_times[3]}|\n\n')
+
+        ratio_results = []
+        for i in range(4):
+            if self.games_results[i][0] + self.games_results[i][1] == 0:
+                ratio = 0
+            else:
+                ratio = self.games_results[i][0] / (self.games_results[i][0] + self.games_results[i][1])
+            ratio_results.append(ratio)
+        f.write('Results (%)\n')
+        f.write('Random|DFS|GA|Heuristics + GA|\n')
+        f.write(f'{100*ratio_results[0]}|{100*ratio_results[1]}|{100*ratio_results[2]}|{100*ratio_results[3]}|\n\n')
+
+        f.write('|Random||DFS||GA||Heuristics + GA\n')
+        f.write('ID|Result|Time|Result|Time|Result|Time|Result|Time\n')
+        game_ids = []
+        for entry in self.results:
+            _, time, algorithm, game_id, result = entry
+            if game_id in [row[0] for row in game_ids]:
+                index = [row[0] for row in game_ids].index(game_id)
+                game_ids[index][algorithm*2-1] = result
+                game_ids[index][algorithm*2] = round(time, 3)
+            else:
+                game_ids.append([game_id, 0, 0, 0, 0, 0, 0, 0, 0])
+                game_ids[-1][algorithm*2-1] = result
+                game_ids[-1][algorithm*2] = round(time, 3)
+
+        for game in game_ids:
+            line = ''
+            for res in game:
+                line += str(res) + '|'
+            f.write(line + '\n')
+
+        f.close()
 
     def event_handler(self):
         event, values = self.window.read(timeout=100)
