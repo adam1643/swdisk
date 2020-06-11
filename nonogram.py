@@ -23,11 +23,16 @@ class Nonogram:
         self.solver = SolverGA(self)
         self.queue = queue
 
+        self.id = 0
+
     def init_game(self, width, height, rows, cols):
         self.width = width
         self.height = height
         self.rows = np.array(rows)
         self.cols = np.array(cols)
+        self.board = np.zeros((self.height, self.width), dtype=int)
+
+    def reset_game(self):
         self.board = np.zeros((self.height, self.width), dtype=int)
 
     def choose_solver(self, solver):
@@ -70,6 +75,8 @@ class Nonogram:
 
         self.board = np.zeros((self.height, self.width), dtype=int)
         self.solver = SolverRandom(self)
+
+        self.id = puzzle_id
 
     @staticmethod
     # converts line of tiles to list containing lengths of continuous colored fields
@@ -157,10 +164,11 @@ class Nonogram:
             raise ValueError(f"Value incorrect. Allowed values: (-1, 0, 1); given value: {value}")
         self.board[y][x] = value
 
-    def solve(self, timeout=None, game_id=None):
+    def solve(self, timeout=None, game_id=None, algorithm=None):
+        self.reset_game()
         start = timer()
-        self.solver.solve(stop=timeout, game_id=game_id, queue=self.queue)
+        self.solver.solve(stop=timeout, game_id=self.id, queue=self.queue, algorithm=algorithm)
         end = timer()
 
         if self.queue is not None:
-            self.queue.append(['time', end - start])
+            self.queue.append(['time', end - start, algorithm, self.id, self.check_solution()])
