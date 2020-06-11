@@ -5,6 +5,8 @@ from random import randint, random, shuffle
 from utils import timer, DEFAULT_TIMEOUT
 import threading
 
+from solver_ga import SolverGA
+
 
 
 class SolverLogicHeuristics:
@@ -303,11 +305,6 @@ class SolverLogicHeuristics:
                 self.subprocedure_2(line, hints)
                 print("proc2 col", i)
 
-            if i == 12:
-                print("___________________")
-                print("Line", line)
-                print("Column", list(self.game.get_board_column(i)))
-                print("___________________")
             if not (list(self.game.get_board_column(i)) == line):
                 index = 0
                 for board, val in zip(list(self.game.get_board_column(i)), line):
@@ -335,8 +332,15 @@ class SolverLogicHeuristics:
         except:
             pass
 
+        if not event.is_set():
+            solved = self.game.check_solution()
+            if not solved:
+                ga = SolverGA(self.game, supporting=True)
+                ga.init_solver()
+                ga.solve(stop=5)
+
         solved = self.game.check_solution()
-        if game_id is not None:
+        if queue is not None:
             queue.append(['result', [game_id, solved], algorithm])
 
 

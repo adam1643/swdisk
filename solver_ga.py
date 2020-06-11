@@ -3,19 +3,27 @@ from utils import timer, DEFAULT_TIMEOUT
 import numpy as np
 import threading
 
+POOL_SIZE = 50
+MAX_CROSSOVERS_WITHOUT_MASS_MUTATE = 1000
+MAX_MASS_MUTATIONS = 20
+MAX_RESETS = 3
+
 
 class SolverGA:
-    def __init__(self, game):
+    def __init__(self, game, supporting=False):
         self.game = game    # object of Nonogram class
         self.finished = False
         self.solved = False
+
+        self.rows = 0
+        self.columns = 0
 
         self.fit_unchanged_count = 0
         self.mass_mutations_count = 0
         self.reset_count = 0
         self.generation = 0
 
-        self.pool_size = 50
+        self.pool_size = POOL_SIZE
 
         self.solutions = []
 
@@ -24,28 +32,31 @@ class SolverGA:
         self.all_fitnesses = []
         self.all_counts = []
 
-    def solve(self, stop=None, game_id=None, queue=None):
+        self.supporting = supporting
+
+        self.original_board = self.game.board
+
+    def solve(self, stop=None, game_id=None, queue=None, algorithm=None):
         """Method for solving Nonograms. If time consuming, should be run in another thread"""
         event = threading.Event()
         threading.Thread(target=timer, args=(event, stop if stop is not None else DEFAULT_TIMEOUT), daemon=True).start()
+        if self.supporting is False:
+            self.preprocess()
 
-        self.preprocess()
         self.init_solver()
         while not event.is_set():
             if not self.finished:
-                if self.fit_unchanged_count >= 1000:
+                if self.fit_unchanged_count >= MAX_CROSSOVERS_WITHOUT_MASS_MUTATE:
                     self.mass_mutate()
                     self.mass_mutations_count += 1
                     self.fit_unchanged_count = 0
-                    print("mass mutated!")
 
             if self.mass_mutations_count >= 20:
                 self.reset()
                 self.reset_count += 1
-                print("reset")
-                self.mass_mutations_count = 0
+                self.mass_mutations_count = MAX_MASS_MUTATIONS
 
-            if self.reset_count >= 3:
+            if self.reset_count >= MAX_RESETS:
                 self.finished = True
                 self.solved = False
                 print("CANNOT SOLVE!")
@@ -61,8 +72,6 @@ class SolverGA:
                 self.last_fitness = best_solution.fitness
                 self.game.board = self.get_best_solution().board
 
-            # print(best_solution.fitness)
-
             if best_solution.fitness == 0:
                 self.finished = True
                 self.solved = True
@@ -74,8 +83,8 @@ class SolverGA:
                 self.finished = True
                 self.solved = False
                 break
-        if game_id is not None:
-            queue.append(['result', [game_id, self.solved]])
+        if queue is not None:
+            queue.append(['result', [game_id, self.solved], algorithm])
 
     def init_solver(self):
         self.rows = self.game.height
@@ -83,16 +92,16 @@ class SolverGA:
         self.solutions = []
 
         for i in range(self.pool_size):
-            solution = Solution(self.rows, self.columns)
+            solution = Solution(self.rows, self.columns, self.original_board if self.supporting else None)
             self.solutions.append(solution)
 
-        self.solutions[0] = Solution(self.rows, self.columns)
+        self.solutions[0] = Solution(self.rows, self.columns, self.original_board if self.supporting else None)
         self.solutions[0].set_flatten_board(self.game.board.flatten())
 
-        self.solutions[1] = Solution(self.rows, self.columns)
+        self.solutions[1] = Solution(self.rows, self.columns, self.original_board if self.supporting else None)
         self.solutions[1].set_flatten_board(self.game.board.flatten())
 
-        self.solutions[2] = Solution(self.rows, self.columns)
+        self.solutions[2] = Solution(self.rows, self.columns, self.original_board if self.supporting else None)
         self.solutions[2].set_flatten_board(self.game.board.flatten())
 
         self.calculate_fitness()
@@ -100,17 +109,14 @@ class SolverGA:
     def mass_mutate(self):
         for solution in self.solutions:
             if self.get_best_solution() != solution:
-                # print("before", solution.board)
-                # print('shuffled')
                 solution.shuffle()
-                # print("after", solution.board)
             else:
                 print("best not mutate!")
 
     def reset(self):
         self.solutions = []
         for i in range(self.pool_size):
-            solution = Solution(self.rows, self.columns)
+            solution = Solution(self.rows, self.columns, self.game.original_board if self.supporting else None)
             self.solutions.append(solution)
         self.calculate_fitness()
 
@@ -141,10 +147,7 @@ class SolverGA:
         self.generation += 1
 
     def tour_select(self):
-        # tournament = shuffle(self.solutions)[:5]
         sorted = self.solutions.copy()
-        # shuffle(sorted)
-        # sorted = sorted[:10]
         sorted.sort(key=lambda x: x.fitness)
         # print("sorted", sorted[0].board)
         # print("tour", sorted[0].board)
@@ -162,7 +165,7 @@ class SolverGA:
             else:
                 board.append(board_b[i])
 
-        child = Solution(self.rows, self.columns)
+        child = Solution(self.rows, self.columns, self.original_board if self.supporting else None)
         child.set_flatten_board(board)
         return child
 
@@ -178,7 +181,6 @@ class SolverGA:
     def get_best_solution(self):
         sorted_solutions = self.solutions.copy()
         sorted_solutions.sort(key=lambda x: x.fitness)
-        # print("best fitness", sorted_solutions[0].fitness)
         return sorted_solutions[0]
 
     def preprocess(self):
@@ -262,31 +264,40 @@ class SolverGA:
 
 
 class Solution:
-    def __init__(self, rows, cols):
+    def __init__(self, rows, cols, original_board=None):
         self.fitness = 0
 
         self.rows = rows
         self.cols = cols
+        self.original = original_board
+        if self.original is None:
+            self.original = np.zeros((self.rows, self.cols), dtype=int)
         self.board = np.zeros((self.rows, self.cols), dtype=int)
 
         for i in range(self.rows):
             for j in range(self.cols):
-                if random() < 0.6:
+                if self.original[i][j] == 0 and random() < 0.6:
                     self.board[i][j] = 1
+                else:
+                    self.board[i][j] = self.original[i][j]
 
     def set_flatten_board(self, board):
         self.board = np.zeros((self.rows, self.cols), dtype=int)
-        # print("board", board, self.rows, self.cols)
         idx = 0
         for i in range(self.rows):
             for j in range(self.cols):
-                self.board[i][j] = board[idx]
+                if self.original[i][j] == 0:
+                    self.board[i][j] = board[idx]
+                else:
+                    self.board[i][j] = self.original[i][j]
                 idx += 1
 
     def mutate(self):
         for i in range(self.rows):
             for j in range(self.cols):
                 if random() < 0.05:
+                    if self.original[i][j] != 0:
+                        continue
                     if self.board[i][j] == 1:
                         self.board[i][j] = 0
                     else:
@@ -307,7 +318,6 @@ class Solution:
 
     def calculate_fitness(self, row_hints, col_hints):
         fitness = 0
-        # print(self.board)
         for i in range(self.rows):
             fitness += self.calculate_difference(row_hints[i], self.prepare_line(self.board[i]))
 
@@ -326,7 +336,7 @@ class Solution:
             arr1.append(0)
 
         if len(arr1) == 0 and len(arr2) != 0:
-            return 100*sum(arr2)
+            return 10*sum(arr2)
 
         score = 0
         for a, b in zip(arr1, arr2):
