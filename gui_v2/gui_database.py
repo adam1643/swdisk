@@ -69,7 +69,7 @@ class GUIDatabase:
             self.window.close()
             return False
 
-        if event in ('-EASY-', '-MEDIUM-', '-HARD-'):
+        if event in ('-EASY-', '-MEDIUM-', '-HARD-', '-VERY_HARD-'):
             if event in '-EASY-':
                 level = 'easy'
             if event in '-MEDIUM-':
