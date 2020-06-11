@@ -6,6 +6,8 @@ from gui_v2.gui_database import GUIDatabase
 import threading
 
 
+SOLVERS = [0, 'random', 'dfs', 'ga', 'heuristics']
+
 class GUIMain:
     def __init__(self):
         self.layout = None
@@ -26,6 +28,9 @@ class GUIMain:
         self.games = []
         self.calc_timeout = 30
 
+        self.all_to_solve = 0
+        self.solves_finished = 0
+
     def set_layout(self):
         sg.theme('default')
         menu_definition = [
@@ -36,10 +41,16 @@ class GUIMain:
 
         menu_layout = [[sg.Button('Load game from file', key='-FILE_LOAD-'), sg.Button('Load game from database', key='-DB_LOAD-')]]
 
-        algorithms_layout = [[sg.Button('Random', key='-SOLVER1-'), sg.Button('DFS', key='-SOLVER2-'), sg.Button('Genetic Algorithms', key='-SOLVER3-'), sg.Button('Heuristics with GA', key='-SOLVER4-')]]
+        algorithms_layout = [
+                            # [sg.Button('Random', key='-SOLVER1-'), sg.Button('DFS', key='-SOLVER2-'), sg.Button('Genetic Algorithms', key='-SOLVER3-'), sg.Button('Heuristics with GA', key='-SOLVER4-')],
+                             [sg.Checkbox('Random', key='-CH_SOLVER1-')],
+                             [sg.Checkbox('DFS', key='-CH_SOLVER2-')],
+                             [sg.Checkbox('Genetic Algorithm', key='-CH_SOLVER3-')],
+                             [sg.Checkbox('Heuristic with GA', key='-CH_SOLVER4-')],
+                             [sg.Button('Solve (slow, accurate)', key='-SOLVE_CHECKED-'), sg.Button('Solve (faster, less accurate)', key='-SOLVE_SIM-')]
+                             ]
 
         loaded_layout = [[sg.Multiline('', key='-LOADED_DATA-')],
-                         [sg.Button('Init games with loaded data', key='-INIT_GAMES-'), sg.Button('Reset', key='-RESET-')],
                          [sg.Frame('Solve with algorithm', algorithms_layout)],
                          [sg.Text('Timeout solver after [s]:'), sg.Input('30', key='-TIMEOUT_INPUT-', size=(10, 10)), sg.Button('Set', key='-TIMEOUT-')]
                          ]
@@ -56,15 +67,15 @@ class GUIMain:
         s4_layout = [[sg.Text('Solved/unsolved:', text_color='black'), sg.Text('0/0', key='-S4_RATIO-', font='Arial 15 bold', size=(5, 1)), sg.Text('  % solved:'), sg.Text('0 %', key='-S4_PER-', font='Arial 14 bold', size=(4, 1)), sg.Text('  Mean solving time [s]: '), sg.Text('0', key='-S4_TIME-', font='Arial 15 bold', size=(7, 1))]]
 
         results_layout = [
-            [sg.Text('Games loaded: ', font='Arial 20 bold', text_color='black'), sg.Text('0', key='-NO_OF_GAMES-', font='Arial 20 bold', text_color='black', size=(5, 1))],
+            [sg.Text('Games loaded: ', font='Arial 20 bold', text_color='black'), sg.Text('100', key='-NO_OF_GAMES-', font='Arial 20 bold', text_color='black', size=(5, 1))],
             [sg.Frame('Random', s1_layout, font='bold')],
             [sg.Frame('DFS', s2_layout, font='bold')],
             [sg.Frame('Genetic algorithm', s3_layout, font='bold')],
-            [sg.Frame('Heuristics with GA', s4_layout, font='bold')],
+            [sg.Frame('Heuristics with GA', s4_layout, font='bold')]
         ]
-
         self.layout = [
-            [sg.Frame('Game data', loading_data_layout), sg.Frame('Results', results_layout)]
+            [sg.Frame('Game data', loading_data_layout), sg.Frame('Results', results_layout)],
+            [sg.ProgressBar(100, key='-PROGRESS-', size=(40, 10))]
         ]
 
         self.window = sg.Window('Nonogram solver', self.layout, finalize=True, resizable=True)
@@ -92,6 +103,8 @@ class GUIMain:
 
         self.window['-NO_OF_GAMES-'].update('0')
 
+        self.solves_finished = 0
+
     def read_queue(self, item):
         if item[0] == 'ids':
             self.window['-LOADED_DATA-'].update(item[1])
@@ -99,26 +112,56 @@ class GUIMain:
     def read_games_queue(self, item):
         if item[0] == 'result':
             result = item[1]
+            algorithm = item[2]
             if result[1] is True:
-                print("Before", self.games_results, self.algorithm, self.games_results[self.algorithm-1][0])
-                self.games_results[self.algorithm - 1][0] += 1
-                print("After", self.games_results, self.algorithm, self.games_results[self.algorithm-1][0])
+                print("Before", self.games_results, algorithm, self.games_results[algorithm-1][0])
+                self.games_results[algorithm - 1][0] += 1
+                print("After", self.games_results, algorithm, self.games_results[algorithm-1][0])
             else:
-                self.games_results[self.algorithm - 1][1] += 1
+                self.games_results[algorithm - 1][1] += 1
             print(f'result of {result[0]} = {result[1]}')
-            ratio = self.games_results[self.algorithm - 1][0] / (self.games_results[self.algorithm - 1][0] + self.games_results[self.algorithm - 1][1])
+            ratio = self.games_results[algorithm - 1][0] / (self.games_results[algorithm - 1][0] + self.games_results[algorithm - 1][1])
 
-            self.window[f'-S{self.algorithm}_RATIO-'].update(f'{self.games_results[self.algorithm - 1][0]}/{self.games_results[self.algorithm - 1][1]}')
-            self.window[f'-S{self.algorithm}_PER-'].update(f'{round(100*ratio)}%')
+            self.window[f'-S{algorithm}_RATIO-'].update(f'{self.games_results[algorithm - 1][0]}/{self.games_results[algorithm - 1][1]}')
+            self.window[f'-S{algorithm}_PER-'].update(f'{round(100*ratio)}%')
 
-            if self.games_results[self.algorithm - 1][0] + self.games_results[self.algorithm - 1][1] == len(self.games):
-                sg.popup_ok('Calculations finished! Results updated!')
+            self.solves_finished += 1
+            self.window['-PROGRESS-'].update_bar(self.solves_finished)
+
+            if self.all_to_solve == self.solves_finished:
+                sg.popup_ok('Calculations finished! Results updated!', title='')
 
         if item[0] == 'time':
             print("time", item)
-            self.mean_times[self.algorithm - 1].append(item[1])
-            mean_time = sum(self.mean_times[self.algorithm - 1]) / len(self.mean_times[self.algorithm - 1])
-            self.window[f'-S{self.algorithm}_TIME-'].update(str(round(mean_time, 3)))
+            algorithm = item[2]
+            self.mean_times[algorithm - 1].append(item[1])
+            mean_time = sum(self.mean_times[algorithm - 1]) / len(self.mean_times[algorithm - 1])
+            self.window[f'-S{algorithm}_TIME-'].update(str(round(mean_time, 3)))
+
+    def init_games(self):
+        try:
+            loaded_data = ast.literal_eval(self.window['-LOADED_DATA-'].get())
+            if not isinstance(loaded_data, list):
+                raise ValueError()
+            self.games = []
+            for id in loaded_data:
+                if not isinstance(id, int):
+                    raise ValueError()
+                nonogram = Nonogram(self.games_queue)
+                nonogram.load_from_db(id)
+                self.games.append(nonogram)
+        except (ValueError, SyntaxError):
+            sg.popup_error('Entered data incorrect')
+        self.window['-NO_OF_GAMES-'].update(str(len(self.games)))
+
+    def solve_separately(self, checked_solvers):
+        for sol in checked_solvers:
+            self.algorithm = sol
+            for idx, game in enumerate(self.games):
+                game.choose_solver(SOLVERS[self.algorithm])
+                a = threading.Thread(target=game.solve, args=(self.calc_timeout, idx, self.algorithm))
+                a.start()
+                a.join()
 
     def event_handler(self):
         event, values = self.window.read(timeout=100)
@@ -133,22 +176,29 @@ class GUIMain:
         if event in (None,):
             return False
 
-        if event in '-INIT_GAMES-':
+        if event in '-SOLVE_SIM-':
             self.reset_games()
-            try:
-                loaded_data = ast.literal_eval(self.window['-LOADED_DATA-'].get())
-                if not isinstance(loaded_data, list):
-                    raise ValueError()
-                self.games = []
-                for id in loaded_data:
-                    if not isinstance(id, int):
-                        raise ValueError()
-                    nonogram = Nonogram(self.games_queue)
-                    nonogram.load_from_db(id)
-                    self.games.append(nonogram)
-            except (ValueError, SyntaxError):
-                sg.popup_error('Entered data incorrect')
-            self.window['-NO_OF_GAMES-'].update(str(len(self.games)))
+            self.init_games()
+
+            checked_solvers = []
+            if self.window['-CH_SOLVER1-'].get():
+                checked_solvers.append(1)
+            if self.window['-CH_SOLVER2-'].get():
+                checked_solvers.append(2)
+            if self.window['-CH_SOLVER3-'].get():
+                checked_solvers.append(3)
+            if self.window['-CH_SOLVER4-'].get():
+                checked_solvers.append(4)
+
+            print("Checked solvers:", checked_solvers)
+            self.all_to_solve = len(checked_solvers)*len(self.games)
+            self.window['-PROGRESS-'].update_bar(0, self.all_to_solve)
+
+            for sol in checked_solvers:
+                self.algorithm = sol
+                for idx, game in enumerate(self.games):
+                    game.choose_solver(SOLVERS[self.algorithm])
+                    threading.Thread(target=game.solve, args=(self.calc_timeout, idx, self.algorithm), daemon=True).start()
 
         if event in'-SOLVER1-':
             self.algorithm = 1
@@ -176,6 +226,27 @@ class GUIMain:
 
         if event in '-RESET-':
             self.reset_games()
+            self.window['-PROGRESS-'].update_bar(0)
+
+        if event in '-SOLVE_CHECKED-':
+            self.reset_games()
+            self.init_games()
+
+            checked_solvers = []
+            if self.window['-CH_SOLVER1-'].get():
+                checked_solvers.append(1)
+            if self.window['-CH_SOLVER2-'].get():
+                checked_solvers.append(2)
+            if self.window['-CH_SOLVER3-'].get():
+                checked_solvers.append(3)
+            if self.window['-CH_SOLVER4-'].get():
+                checked_solvers.append(4)
+
+            print("Checked solvers:", checked_solvers)
+            self.all_to_solve = len(checked_solvers)*len(self.games)
+            self.window['-PROGRESS-'].update_bar(0, self.all_to_solve)
+
+            threading.Thread(target=self.solve_separately, args=(checked_solvers,), daemon=True).start()
 
         if event in '-TIMEOUT-':
             self.calc_timeout = int(self.window['-TIMEOUT_INPUT-'].get())
