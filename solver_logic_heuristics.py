@@ -257,7 +257,7 @@ class SolverLogicHeuristics:
                     if board != line:
                         self.game.set_board_tile(index, i, line)
                     index += 1
-                print("Difference!")
+                # print("Difference!")
                 status_changed = True
 
         for i in range(self.game.width):
@@ -273,7 +273,7 @@ class SolverLogicHeuristics:
                     if board != val:
                         self.game.set_board_tile(i, index, val)
                     index += 1
-                print("Difference!")
+                # print("Difference!")
                 status_changed = True
 
         return status_changed
