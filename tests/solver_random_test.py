@@ -4,7 +4,7 @@ import numpy as np
 from nonogram import Nonogram
 
 
-class TestSolverLogicHeuristics(unittest.TestCase):
+class TestSolverRandom(unittest.TestCase):
     def test_parser(self):
         game = Nonogram()
         solver = SolverRandom(game)

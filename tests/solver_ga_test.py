@@ -20,7 +20,6 @@ class TestSolverGA(unittest.TestCase):
             print("generation", solver.generation)
             return
 
-
         print("best solution", solver.get_best_solution().board, "fitness", solver.get_best_solution().fitness)
         print("generation", solver.generation)
         print("all ftinesses", solver.all_fitnesses)
@@ -32,4 +31,4 @@ class TestSolverGA(unittest.TestCase):
         game.load_from_file('test.txt')
         sol.calculate_fitness(game.rows, game.cols)
         print(sol.fitness)
-        print("diff", sol.calculate_difference([1,1,1], [5]))
+        print("diff", sol.calculate_difference([1, 1, 1], [5]))

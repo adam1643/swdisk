@@ -131,13 +131,6 @@ class SolverLogicHeuristics:
                 for j in range(right_most[i][1]+1, left_most[i+1][0]):
                     line[j] = -1
 
-    def subprocedure_3(self, line, hints):
-        idx = 0
-        while line[idx] == -1:
-            idx += 1
-        for i in range:
-            pass
-
     def prepare_edge_cases(self, line, hints):
         line = line.copy()
         left_most = self.prepare_left_most(line, hints)
@@ -154,14 +147,12 @@ class SolverLogicHeuristics:
 
     def prepare_left_most(self, line, hints):
         line_len = len(line)
-        left_most = []
 
         hint_sum = 0
         for hint in hints:
             hint_sum += hint + 1
         hint_sum -= 1
 
-        pos = 0
         offset = [0 for _ in range(len(hints))]
         max_offset_idx = len(offset) - 1
         curr_offset_idx = max_offset_idx
@@ -189,9 +180,7 @@ class SolverLogicHeuristics:
                         return left_most
                     else:
                         pass
-                        # raise ValueError("Position too far! ", pos)
 
-            # print(left_line)
             if not self.is_line_possible(left_line, hints, always_true=False):
                 if hint_sum + sum(offset) < line_len:
                     offset[curr_offset_idx] += 1

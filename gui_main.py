@@ -5,8 +5,8 @@ from gui_v2.gui_game import GUIGame
 from gui_v2.gui_database import GUIDatabase
 import threading
 
-
 SOLVERS = [0, 'random', 'dfs', 'ga', 'heuristics']
+
 
 class GUIMain:
     def __init__(self):
@@ -45,7 +45,6 @@ class GUIMain:
         menu_layout = [[sg.Button('Load game from file', key='-FILE_LOAD-'), sg.Button('Load game from database', key='-DB_LOAD-')]]
 
         algorithms_layout = [
-                            # [sg.Button('Random', key='-SOLVER1-'), sg.Button('DFS', key='-SOLVER2-'), sg.Button('Genetic Algorithms', key='-SOLVER3-'), sg.Button('Heuristics with GA', key='-SOLVER4-')],
                              [sg.Checkbox('Random', key='-CH_SOLVER1-')],
                              [sg.Checkbox('DFS', key='-CH_SOLVER2-')],
                              [sg.Checkbox('Genetic Algorithm', key='-CH_SOLVER3-')],
