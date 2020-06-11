@@ -1,5 +1,4 @@
 from utils import timer, DEFAULT_TIMEOUT
-from random import randint
 import numpy as np
 import threading
 

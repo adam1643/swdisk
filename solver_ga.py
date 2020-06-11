@@ -59,7 +59,6 @@ class SolverGA:
             if self.reset_count >= MAX_RESETS:
                 self.finished = True
                 self.solved = False
-                print("CANNOT SOLVE!")
                 break
 
             self.evolve()
@@ -75,8 +74,6 @@ class SolverGA:
             if best_solution.fitness == 0:
                 self.finished = True
                 self.solved = True
-                print("best fitness", best_solution.fitness)
-                print("best solution", best_solution.board)
                 break
 
             if self.is_converged():
@@ -110,8 +107,6 @@ class SolverGA:
         for solution in self.solutions:
             if self.get_best_solution() != solution:
                 solution.shuffle()
-            else:
-                print("best not mutate!")
 
     def reset(self):
         self.solutions = []
@@ -138,7 +133,6 @@ class SolverGA:
             child = self.crossover(parent_a, parent_b)
             child.mutate()
             new_solutions.append(child)
-            # print(child.board)
 
         shuffle(new_solutions)
         self.solutions = new_solutions
@@ -149,9 +143,6 @@ class SolverGA:
     def tour_select(self):
         sorted = self.solutions.copy()
         sorted.sort(key=lambda x: x.fitness)
-        # print("sorted", sorted[0].board)
-        # print("tour", sorted[0].board)
-        # print("fitt", sorted[0].fitness)
         return sorted[randint(0, 2)]
 
     def crossover(self, parent_a, parent_b):
@@ -256,8 +247,6 @@ class SolverGA:
                 end += 1
             hint_end = reversed(list(hint_end))
             for s, e in zip(hint_start, hint_end):
-                if idx == 0:
-                    print(s, e)
                 if s >= e:
                     for i in range(e, s+1):
                         self.game.set_board_tile(idx, i, 1)

@@ -35,6 +35,7 @@ class GUIMain:
 
     def set_layout(self):
         sg.theme('default')
+        sg.change_look_and_feel('DefaultNoMoreNagging')
         menu_definition = [
                             ['Game', ['Open from...', ['...database', '...file']]],
                             ['Database', ['Browse database']],
@@ -117,12 +118,9 @@ class GUIMain:
             result = item[1]
             algorithm = item[2]
             if result[1] is True:
-                print("Before", self.games_results, algorithm, self.games_results[algorithm-1][0])
                 self.games_results[algorithm - 1][0] += 1
-                print("After", self.games_results, algorithm, self.games_results[algorithm-1][0])
             else:
                 self.games_results[algorithm - 1][1] += 1
-            print(f'result of {result[0]} = {result[1]}')
             ratio = self.games_results[algorithm - 1][0] / (self.games_results[algorithm - 1][0] + self.games_results[algorithm - 1][1])
 
             self.window[f'-S{algorithm}_RATIO-'].update(f'{self.games_results[algorithm - 1][0]}/{self.games_results[algorithm - 1][1]}')
@@ -136,7 +134,6 @@ class GUIMain:
                 if decision in 'Yes':
                     folder = sg.popup_get_folder('Select folder where file should be saved', keep_on_top=True)
                     file_name = sg.popup_get_text('Select filename:', default_text='results.txt', keep_on_top=True)
-                    print(folder + '/' + file_name)
                     self.save_results_to_file(folder + '/' + file_name)
 
         if item[0] == 'time':
@@ -227,6 +224,7 @@ class GUIMain:
         while len(self.queue) > 0:
             self.read_queue(self.queue.pop(-1))
 
+        # handle queue for solvers
         while len(self.games_queue) > 0:
             self.read_games_queue(self.games_queue.pop(-1))
 
@@ -247,7 +245,6 @@ class GUIMain:
             if self.window['-CH_SOLVER4-'].get():
                 checked_solvers.append(4)
 
-            print("Checked solvers:", checked_solvers)
             self.all_to_solve = len(checked_solvers)*len(self.games)
             self.window['-PROGRESS-'].update_bar(0, self.all_to_solve)
 
@@ -256,34 +253,6 @@ class GUIMain:
                 for idx, game in enumerate(self.games):
                     game.choose_solver(SOLVERS[self.algorithm])
                     threading.Thread(target=game.solve, args=(self.calc_timeout, idx, self.algorithm), daemon=True).start()
-
-        if event in'-SOLVER1-':
-            self.algorithm = 1
-            for idx, game in enumerate(self.games):
-                game.choose_solver('random')
-                threading.Thread(target=game.solve, args=(self.calc_timeout, idx), daemon=True).start()
-
-        if event in'-SOLVER2-':
-            self.algorithm = 2
-            for idx, game in enumerate(self.games):
-                game.choose_solver('dfs')
-                threading.Thread(target=game.solve, args=(self.calc_timeout, idx), daemon=True).start()
-
-        if event in'-SOLVER3-':
-            self.algorithm = 3
-            for idx, game in enumerate(self.games):
-                game.choose_solver('ga')
-                threading.Thread(target=game.solve, args=(self.calc_timeout, idx), daemon=True).start()
-
-        if event in'-SOLVER4-':
-            self.algorithm = 4
-            for idx, game in enumerate(self.games):
-                game.choose_solver('heuristics')
-                threading.Thread(target=game.solve, args=(self.calc_timeout, idx), daemon=True).start()
-
-        if event in '-RESET-':
-            self.reset_games()
-            self.window['-PROGRESS-'].update_bar(0)
 
         if event in '-SOLVE_CHECKED-':
             self.reset_games()
@@ -299,7 +268,6 @@ class GUIMain:
             if self.window['-CH_SOLVER4-'].get():
                 checked_solvers.append(4)
 
-            print("Checked solvers:", checked_solvers)
             self.all_to_solve = len(checked_solvers)*len(self.games)
             self.window['-PROGRESS-'].update_bar(0, self.all_to_solve)
 
@@ -307,7 +275,7 @@ class GUIMain:
 
         if event in '-TIMEOUT-':
             self.calc_timeout = int(self.window['-TIMEOUT_INPUT-'].get())
-            sg.popup_auto_close(f'Set timeout to {self.calc_timeout} s', auto_close_duration=1, button_type=sg.POPUP_BUTTONS_NO_BUTTONS)
+            sg.popup_auto_close(f'Set timeout to {self.calc_timeout} s', auto_close_duration=1, button_type=sg.POPUP_BUTTONS_NO_BUTTONS, title='')
 
         if not self.game_gui_opened and event in ('...file', '-FILE_LOAD-'):
             self.game_gui = GUIGame(self.queue, 'test.txt')
@@ -341,4 +309,3 @@ class GUIMain:
             self.database_gui_opened = False
 
         return True
-

@@ -19,7 +19,6 @@ class Nonogram:
         self.db_handler = DatabaseHandler('puzzles.db')  # pointer to database handler used for loading puzzles from database
         self.solution = []  # 2d array storing solution of the puzzle (1st row, 2nd row, etc.)
 
-        # self.solver = SolverLogicHeuristics(self)
         self.solver = SolverGA(self)
         self.queue = queue
 
@@ -111,15 +110,14 @@ class Nonogram:
         for index, row in enumerate(self.rows):
             a = self.prepare_line(self.board[index])
             if not np.array_equal(row, a):
-                print("WRONG ROW", row, a, index)
+                # print("WRONG ROW", row, a, index)
                 return False
         # check if every column is correct
         for index, col in enumerate(self.cols):
             a = self.prepare_line(self.board[:, index])
             if not np.array_equal(col, a):
-                print("WRONG COL", col, a, index)
+                # print("WRONG COL", col, a, index)
                 return False
-        print("CORRECT")
         return True
 
     def get_board_row(self, index):

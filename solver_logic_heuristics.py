@@ -1,7 +1,4 @@
-import time
-from random import randint
 import numpy as np
-from random import randint, random, shuffle
 from utils import timer, DEFAULT_TIMEOUT
 import threading
 from solver_ga import SolverGA
