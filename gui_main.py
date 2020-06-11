@@ -59,6 +59,7 @@ class GUIMain:
 
         loading_data_layout = [
             [sg.Menu(menu_definition)],
+            [sg.Button('Open database browser', key='-BROWSE-DB-')],
             [sg.Frame('Single game', menu_layout)],
             [sg.Frame('Loaded puzzles', loaded_layout)]
         ]
@@ -326,7 +327,7 @@ class GUIMain:
                     self.game_gui.redraw_hints(self.game_gui.game.rows, self.game_gui.game.cols)
                     self.game_gui.redraw()
 
-        if not self.database_gui_opened and event == 'Browse database':
+        if not self.database_gui_opened and (event == 'Browse database' or event == '-BROWSE-DB-'):
             self.database_gui = GUIDatabase(self.queue)
             self.database_gui.set_layout()
             self.database_gui_opened = True
