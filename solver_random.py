@@ -8,7 +8,7 @@ class SolverRandom:
     def __init__(self, game):
         self.game = game    # object of Nonogram class=
 
-    def solve(self, stop=None, game_id=None, queue=None):
+    def solve(self, stop=None, game_id=None, queue=None, algorithm=None):
         """Method for solving Nonograms. If time consuming, should be run in another thread"""
         event = threading.Event()
         threading.Thread(target=timer, args=(event, stop if stop is not None else DEFAULT_TIMEOUT), daemon=True).start()
@@ -34,15 +34,18 @@ class SolverRandom:
                 for idx in range(len(col)):
                     self.game.set_board_tile(index, idx, col[idx])
 
-        if game_id is not None:
-            queue.append(['result', [game_id, self.game.check_solution()]])
+        if queue is not None:
+            queue.append(['result', [game_id, self.game.check_solution()], algorithm])
 
     def random_permutation(self, white, black):
         row = [0 for _ in range(white)] + [1 for _ in range(black)]
         return np.random.permutation(row)
 
     def get_correct_row(self, hints, white, black):
-        while True:
+        idx = 0
+        while idx < 500:
+            idx += 1
             row = self.random_permutation(white, black)
             if np.array_equal(self.game.prepare_line(row), np.array(hints, dtype=int)):
                 return row
+        return [0 for _ in range(white+black)]
