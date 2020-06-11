@@ -20,10 +20,10 @@ class GUIDatabase:
                           [sg.Listbox(key='-SEL_PUZZLES-', values=[], select_mode=sg.LISTBOX_SELECT_MODE_EXTENDED, size=(30, 15))],
                           [sg.Button(button_text='Load all puzzles'), sg.Button(button_text='Load selected puzzles')]]
 
-        diff2_layout = [[sg.Button('100 easy puzzles', key='-EASY-')],
-                        [sg.Button('100 medium puzzles', key='-MEDIUM-')],
-                        [sg.Button('100 hard puzzles', key='-HARD-')],
-                        [sg.Button('100 very hard puzzles', key='-VERY_HARD-')]]
+        diff2_layout = [[sg.Button('50 easy puzzles', key='-EASY-')],
+                        [sg.Button('50 medium puzzles', key='-MEDIUM-')],
+                        [sg.Button('50 hard puzzles', key='-HARD-')],
+                        [sg.Button('50 very hard puzzles', key='-VERY_HARD-')]]
 
         self.layout = [[sg.Text('Search in database'), sg.Text('', key='-OUTPUT-')],
                        [sg.Frame('Difficulty', diff_layout), sg.Frame('Random sets', diff2_layout)],

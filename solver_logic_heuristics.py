@@ -292,14 +292,14 @@ class SolverLogicHeuristics:
                 if not s1 and not s2:
                     status = False
         except:
-            pass
+            print(f"Heuristics: Puzzle with id {game_id} not solvable!")
 
         if not event.is_set():
             solved = self.game.check_solution()
             if not solved:
                 ga = SolverGA(self.game, supporting=True)
                 ga.init_solver()
-                ga.solve(stop=5)
+                ga.solve(stop=stop)
 
         solved = self.game.check_solution()
         if queue is not None:

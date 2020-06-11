@@ -87,7 +87,7 @@ class DatabaseHandler:
             data = self.select_unique_square_data()
 
         np.random.shuffle(data)
-        return data[:100]
+        return data[:50]
 
     def query_sql(self, sql):
         self.cursor.execute(sql)
