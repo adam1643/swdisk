@@ -176,7 +176,6 @@ class SolverLogicHeuristics:
 
                 if pos > line_len:
                     if self.check_line(line, hints):
-                        print(perf_index)
                         return left_most
                     else:
                         pass

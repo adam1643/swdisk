@@ -70,7 +70,7 @@ class GUIMain:
         s4_layout = [[sg.Text('Solved/unsolved:', text_color='black'), sg.Text('0/0', key='-S4_RATIO-', font='Arial 15 bold', size=(5, 1)), sg.Text('  % solved:'), sg.Text('0 %', key='-S4_PER-', font='Arial 14 bold', size=(4, 1)), sg.Text('  Mean solving time [s]: '), sg.Text('0', key='-S4_TIME-', font='Arial 15 bold', size=(7, 1))]]
 
         results_layout = [
-            [sg.Text('Games loaded: ', font='Arial 20 bold', text_color='black'), sg.Text('100', key='-NO_OF_GAMES-', font='Arial 20 bold', text_color='black', size=(5, 1))],
+            [sg.Text('Games loaded: ', font='Arial 20 bold', text_color='black'), sg.Text('0', key='-NO_OF_GAMES-', font='Arial 20 bold', text_color='black', size=(5, 1))],
             [sg.Frame('Random', s1_layout, font='bold')],
             [sg.Frame('DFS', s2_layout, font='bold')],
             [sg.Frame('Genetic algorithm', s3_layout, font='bold')],
@@ -131,9 +131,20 @@ class GUIMain:
             if self.all_to_solve == self.solves_finished:
                 decision = sg.popup_yes_no('Calculations finished! Do you want to save results to file?', title='')
                 if decision in 'Yes':
-                    folder = sg.popup_get_folder('Select folder where file should be saved', keep_on_top=True)
-                    file_name = sg.popup_get_text('Select filename:', default_text='results.txt', keep_on_top=True)
-                    self.save_results_to_file(folder + '/' + file_name)
+                    saved = False
+                    while not saved:
+                        folder = sg.popup_get_folder('Select folder where file should be saved', keep_on_top=True)
+                        if folder is not None:
+                            file_name = sg.popup_get_text('Select filename:', default_text='results.txt', keep_on_top=True)
+                            if file_name is not None:
+                                try:
+                                    self.save_results_to_file(folder + '/' + file_name)
+                                except:
+                                    sg.popup_error("Error while saving file!")
+                            else:
+                                break
+                        else:
+                            break
 
         if item[0] == 'time':
             _, time, algorithm, game_id, result = item
@@ -163,9 +174,9 @@ class GUIMain:
     def solve_separately(self, checked_solvers):
         for sol in checked_solvers:
             self.algorithm = sol
-            for idx, game in enumerate(self.games):
+            for game in self.games:
                 game.choose_solver(SOLVERS[self.algorithm])
-                a = threading.Thread(target=game.solve, args=(self.calc_timeout, idx, self.algorithm))
+                a = threading.Thread(target=game.solve, args=(self.calc_timeout, self.algorithm))
                 a.start()
                 a.join()
 
@@ -249,9 +260,9 @@ class GUIMain:
 
             for sol in checked_solvers:
                 self.algorithm = sol
-                for idx, game in enumerate(self.games):
+                for game in self.games:
                     game.choose_solver(SOLVERS[self.algorithm])
-                    threading.Thread(target=game.solve, args=(self.calc_timeout, idx, self.algorithm), daemon=True).start()
+                    threading.Thread(target=game.solve, args=(self.calc_timeout, self.algorithm), daemon=True).start()
 
         if event in '-SOLVE_CHECKED-':
             self.reset_games()

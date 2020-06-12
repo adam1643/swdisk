@@ -162,7 +162,7 @@ class Nonogram:
             raise ValueError(f"Value incorrect. Allowed values: (-1, 0, 1); given value: {value}")
         self.board[y][x] = value
 
-    def solve(self, timeout=None, game_id=None, algorithm=None):
+    def solve(self, timeout=None, algorithm=None):
         self.reset_game()
         start = timer()
         self.solver.solve(stop=timeout, game_id=self.id, queue=self.queue, algorithm=algorithm)

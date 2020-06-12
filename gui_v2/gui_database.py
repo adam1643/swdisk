@@ -37,7 +37,11 @@ class GUIDatabase:
 
     def prepare_select(self, values):
         difficulties = [i for i in range(0, 5) if values[i] is True]
-        difficulties = str(tuple(difficulties))
+        if len(difficulties) == 1:
+            difficulties = str(tuple(difficulties))
+            difficulties = difficulties[:-2] + difficulties[-1]
+        else:
+            difficulties = str(tuple(difficulties))
         rows = values[6]
         cols = values[8]
 

@@ -5,6 +5,8 @@ import threading
 
 
 class GUIGame:
+    LINE_WIDTH = 1
+
     def __init__(self, gui_queue, filename=None, db_id=None):
         self.main_gui_queue = gui_queue
 
@@ -56,6 +58,11 @@ class GUIGame:
         # Init array storing ids of board tiles
         self.board_ids = [[None for _ in range(self.game_width)] for _ in range(self.game_height)]
 
+        if self.game.id != 0:
+            self.window['-GAME_ID-'].update(f'Nonogram ID: {self.game.id}')
+        else:
+            self.window['-GAME_ID-'].update(f'Nonogram ID: N/A')
+
     def change_size(self, x, y):
         # calculate longest array of tips
         max_row = max([len(r) for r in self.game.rows])
@@ -81,7 +88,7 @@ class GUIGame:
 
     def set_layout(self):
         self.layout = [
-            [sg.Text('Nonogram'), sg.Text('', key='-OUTPUT-')],
+            [sg.Text('Nonogram           f', key='-GAME_ID-'), sg.Text('', key='-OUTPUT-')],
             [sg.Graph((self.TIP_SIZE + self.WINDOW_SIZE_X, self.TIP_SIZE),
                       (0, self.TIP_SIZE), (self.TIP_SIZE + self.WINDOW_SIZE_X, 0),
                       key='-COLUMNS-', change_submits=True, drag_submits=False)],
@@ -97,7 +104,7 @@ class GUIGame:
             [sg.Input(key='-FILEBROWSE-', enable_events=True, visible=False)]
         ]
 
-        self.window = sg.Window('Window Title', self.layout, finalize=True, resizable=True)
+        self.window = sg.Window('Single game', self.layout, finalize=True, resizable=True)
         self.puzzle = self.window['-GRAPH-']
         self.row_hints = self.window['-ROWS-']
         self.col_hints = self.window['-COLUMNS-']
@@ -159,17 +166,17 @@ class GUIGame:
                     self.board_ids[row][col] = self.puzzle.draw_rectangle(
                         (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
                         (col * self.BOX_WIDTH + self.BOX_WIDTH, row * self.BOX_HEIGHT + self.BOX_HEIGHT),
-                        line_color='black', fill_color='white')
+                        line_color='black', fill_color='white', line_width=self.LINE_WIDTH)
                 elif self.game.board[row][col] == 1:
                     self.board_ids[row][col] = self.puzzle.draw_rectangle(
                         (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
                         (col * self.BOX_WIDTH + self.BOX_WIDTH, row * self.BOX_HEIGHT + self.BOX_HEIGHT),
-                        line_color='black', fill_color='black')
+                        line_color='black', fill_color='black', line_width=self.LINE_WIDTH)
                 else:
                     self.board_ids[row][col] = self.puzzle.draw_rectangle(
                         (col * self.BOX_WIDTH, row * self.BOX_HEIGHT),
                         (col * self.BOX_WIDTH + self.BOX_WIDTH, row * self.BOX_HEIGHT+ self.BOX_HEIGHT),
-                        line_color='black', fill_color='grey')
+                        line_color='black', fill_color='grey', line_width=self.LINE_WIDTH)
 
                 # draw tile number in the tile
                 # self.game.get_solution_from_file('solution.txt')
