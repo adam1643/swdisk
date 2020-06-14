@@ -1,7 +1,5 @@
 # file for maintenancing database and puzzles parsing
-from puzzle_downloader import check_all_xml_puzzles, download_puzzles_as_xml
-from database import DatabaseHandler
-from parser import parse_puzzle_from_xml_file
+from utils.parser import parse_puzzle_from_xml_file
 import tqdm
 
 

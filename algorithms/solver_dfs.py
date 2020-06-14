@@ -1,8 +1,8 @@
-from typing import List, Dict, Tuple, Any, Type, Union
+from typing import List
 import copy
 import time
 import numpy as np
-from utils import timer, DEFAULT_TIMEOUT
+from utils.utils import timer, DEFAULT_TIMEOUT
 import threading
 
 

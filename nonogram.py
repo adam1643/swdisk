@@ -1,10 +1,10 @@
 import numpy as np
 import ast  # for evaluating data loaded from file
-from database import DatabaseHandler
-from solver_dfs import SolverDFS
-from solver_logic_heuristics import SolverLogicHeuristics
-from solver_random import SolverRandom
-from solver_ga import SolverGA
+from utils.database import DatabaseHandler
+from algorithms.solver_dfs import SolverDFS
+from algorithms.solver_logic_heuristics import SolverLogicHeuristics
+from algorithms.solver_random import SolverRandom
+from algorithms.solver_ga import SolverGA
 from timeit import default_timer as timer
 
 

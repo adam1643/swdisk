@@ -1,4 +1,4 @@
-from gui_main import GUIMain
+from gui_v2.gui_main import GUIMain
 
 g = GUIMain()
 g.set_layout()

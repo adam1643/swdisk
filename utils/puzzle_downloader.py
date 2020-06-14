@@ -1,5 +1,5 @@
 import requests
-from parser import parse_from_string_to_file, remove_not_existing_puzzle
+from utils.parser import parse_from_string_to_file, remove_not_existing_puzzle
 import tqdm
 from multiprocessing.dummy import Pool as ThreadPool
 

@@ -1,7 +1,7 @@
 import numpy as np
-from utils import timer, DEFAULT_TIMEOUT
+from utils.utils import timer, DEFAULT_TIMEOUT
 import threading
-from solver_ga import SolverGA
+from algorithms.solver_ga import SolverGA
 
 
 class SolverLogicHeuristics:

@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from database import DatabaseHandler
+from utils.database import DatabaseHandler
 
 
 class GUIDatabase:

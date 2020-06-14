@@ -1,4 +1,4 @@
-from utils import timer, DEFAULT_TIMEOUT
+from utils.utils import timer, DEFAULT_TIMEOUT
 import numpy as np
 import threading
 
