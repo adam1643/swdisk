@@ -3,7 +3,7 @@ from utils.utils import timer, DEFAULT_TIMEOUT
 import numpy as np
 import threading
 
-POOL_SIZE = 50
+POOL_SIZE = 100
 MAX_CROSSOVERS_WITHOUT_MASS_MUTATE = 1000
 MAX_MASS_MUTATIONS = 20
 MAX_RESETS = 3
